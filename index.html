@@ -1,0 +1,918 @@
+<title>心情天氣站</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout：首頁主角是「舒服 × 有精神」的 2×2 心情天氣圖，下方一排站牌進各遊戲；每個遊戲是單欄全寬頁，頂端固定「回天氣站 / 我需要幫忙」 */
+:root{
+  --bg:#EDF2F6; --surface:#FFFFFF; --surface-2:#F5F8FB; --ink:#22314A; --muted:#58697F; --line:#D2DCE6;
+  --sun:#C9821C; --sun-t:#FCEED6; --breeze:#2F8B70; --breeze-t:#DCF0E8;
+  --storm:#C0503F; --storm-t:#F8E0DA; --rain:#5167AE; --rain-t:#E1E6F6;
+  --accent:#2C5DA8; --hand:#6E45A8; --on-hand:#FFFFFF; --hand-t:#EEE5F8;
+  --ok:#2F8B70; --paper:#FFFFFF; --paper-ink:#1F2733; --paper-line:#AEB9C6;
+  --f-display:"Huninn","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --r:20px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131A25; --surface:#1C2532; --surface-2:#18202B; --ink:#E5EBF2; --muted:#A2AFC1; --line:#2E3A4B;
+    --sun:#F0B455; --sun-t:#3A2E1B; --breeze:#5CC4A3; --breeze-t:#163128;
+    --storm:#EE8172; --storm-t:#3B221F; --rain:#93A6E6; --rain-t:#202943;
+    --accent:#8DB3EE; --hand:#BC97EA; --on-hand:#1B1226; --hand-t:#2B2140; --ok:#5CC4A3;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131A25; --surface:#1C2532; --surface-2:#18202B; --ink:#E5EBF2; --muted:#A2AFC1; --line:#2E3A4B;
+  --sun:#F0B455; --sun-t:#3A2E1B; --breeze:#5CC4A3; --breeze-t:#163128;
+  --storm:#EE8172; --storm-t:#3B221F; --rain:#93A6E6; --rain-t:#202943;
+  --accent:#8DB3EE; --hand:#BC97EA; --on-hand:#1B1226; --hand-t:#2B2140; --ok:#5CC4A3;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px;
+  -webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1040px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;line-height:1.25;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,5vw,46px)} h2{font-size:clamp(24px,3.4vw,32px)} h3{font-size:22px}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.muted{color:var(--muted)}
+.small{font-size:15px}
+
+/* ---------- top bar ---------- */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;gap:12px;padding-block:12px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.bar h2{flex:1;font-size:24px;min-width:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 20px;border-radius:999px;border:2px solid var(--line);background:var(--surface);font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.hand{background:var(--hand);color:var(--on-hand);border-color:var(--hand);font-family:var(--f-display);font-size:19px}
+.btn.ghost{background:transparent}
+.btn.big{min-height:64px;font-size:21px;padding:0 28px}
+.btn svg{width:22px;height:22px;flex:none}
+.back{min-width:52px;padding:0 16px}
+
+/* ---------- home ---------- */
+.hero{display:grid;grid-template-columns:1fr minmax(0,1.15fr);gap:32px;align-items:center;padding-block:28px 8px}
+.hero-copy{display:grid;gap:16px;min-width:0}
+.hero-copy .lede{font-size:20px;color:var(--muted);max-width:30em}
+.friends{display:flex;gap:4px;flex-wrap:wrap}
+.friend{display:grid;justify-items:center;width:84px;font-size:14px;color:var(--muted)}
+.friend .face{width:72px;height:72px}
+.friend b{font-family:var(--f-display);font-weight:400;color:var(--ink);font-size:17px}
+
+.map{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:34px 0 34px 34px}
+.axis{position:absolute;font-size:14px;color:var(--muted);letter-spacing:.06em;font-weight:500}
+.axis.y{left:0;top:34px;bottom:34px;width:24px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;writing-mode:vertical-rl}
+.axis.x{left:34px;right:0;bottom:0;display:flex;justify-content:space-between}
+.axis.t{left:34px;right:0;top:4px;text-align:center}
+.cell{border:none;text-align:left;border-radius:var(--r);padding:16px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;min-height:150px}
+.cell .face{width:76px;height:76px;grid-row:span 3}
+.cell .zn{display:flex;align-items:center;gap:6px;font-family:var(--f-display);font-size:22px}
+.cell .wx{width:26px;height:26px}
+.cell .zd{font-size:15px;color:var(--muted);line-height:1.45}
+.cell .zw{font-size:14px;font-weight:500}
+.cell:hover{filter:brightness(.98)}
+.z-sun{background:var(--sun-t)} .z-sun .zn,.z-sun .zw{color:var(--sun)}
+.z-breeze{background:var(--breeze-t)} .z-breeze .zn,.z-breeze .zw{color:var(--breeze)}
+.z-storm{background:var(--storm-t)} .z-storm .zn,.z-storm .zw{color:var(--storm)}
+.z-rain{background:var(--rain-t)} .z-rain .zn,.z-rain .zw{color:var(--rain)}
+
+.stations{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:28px}
+.station{display:grid;grid-template-columns:52px 1fr;gap:4px 14px;align-items:start;text-align:left;padding:18px;border-radius:var(--r);background:var(--surface);border:2px solid var(--line);min-height:112px}
+.station:hover{border-color:var(--muted)}
+.station .ico{grid-row:span 2;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--surface-2)}
+.station .ico svg{width:30px;height:30px}
+.station b{font-family:var(--f-display);font-weight:400;font-size:22px}
+.station span{font-size:15px;color:var(--muted);line-height:1.45}
+.station.help{background:var(--hand-t);border-color:transparent}
+.station.help b{color:var(--hand)}
+.home-help{display:flex;justify-content:flex-end;padding-top:14px}
+.foot{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;font-size:14px;color:var(--muted)}
+.foot a{color:var(--accent)}
+
+/* ---------- face ---------- */
+.face{display:block}
+
+/* ---------- chips ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-block:8px 18px}
+.chip{min-height:46px;padding:0 18px;border-radius:999px;border:2px solid var(--line);background:var(--surface);display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.chip .wx{width:20px;height:20px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.zt{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:500;padding:2px 10px;border-radius:999px;background:var(--surface);white-space:nowrap}
+.zt .wx{width:15px;height:15px}
+.zt.sun{color:var(--sun)} .zt.breeze{color:var(--breeze)} .zt.storm{color:var(--storm)} .zt.rain{color:var(--rain)}
+
+/* ---------- emotion cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.ecard{position:relative;border:none;border-radius:var(--r);padding:14px;min-height:236px;display:grid;text-align:center;align-content:start;justify-items:center;gap:6px}
+.ecard .face{width:112px;height:112px}
+.ecard .w{font-family:var(--f-display);font-size:30px;line-height:1.1}
+.ecard .en{font-size:14px;color:var(--muted)}
+.ecard .tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.ecard .back{display:none;text-align:left;justify-items:start;gap:8px;font-size:15.5px;line-height:1.5}
+.ecard .back .dt{font-weight:700;font-size:13px;color:var(--muted);letter-spacing:.04em}
+.ecard .back .dd{margin:0 0 4px}
+.ecard.flipped .front{display:none}
+.ecard.flipped .back{display:grid}
+.ecard .front{display:grid;justify-items:center;gap:6px}
+.ecard .flip{position:absolute;right:12px;top:10px;font-size:12px;color:var(--muted)}
+
+/* ---------- panels / games ---------- */
+.panel{background:var(--surface);border-radius:var(--r);padding:clamp(18px,3vw,32px);border:2px solid var(--line)}
+.stack{display:grid;gap:18px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.lead{font-size:20px}
+.scene{font-family:var(--f-display);font-size:clamp(24px,3.4vw,32px);line-height:1.4}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.opt{min-height:78px;border-radius:18px;border:2px solid var(--line);background:var(--surface-2);font-family:var(--f-display);font-size:26px;display:flex;align-items:center;justify-content:center;gap:10px}
+.opt .face{width:46px;height:46px}
+.opt:hover{border-color:var(--muted)}
+.opt.tried{opacity:.55}
+.opt.right{border-color:var(--ok);background:var(--breeze-t)}
+.feedback{border-radius:18px;padding:18px 20px;display:grid;gap:8px;font-size:18px}
+.feedback.good{background:var(--breeze-t)}
+.feedback.soft{background:var(--surface-2);border:2px dashed var(--line)}
+.feedback b{font-family:var(--f-display);font-weight:400;font-size:24px}
+.stamps{display:flex;gap:4px;flex-wrap:wrap;align-items:center;font-size:15px;color:var(--muted)}
+.stamp{width:26px;height:26px}
+.qface{display:flex;justify-content:center}
+.qface .face{width:180px;height:180px}
+
+/* match */
+.match{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px}
+.mcol{display:grid;gap:12px;align-content:start}
+.mitem{min-height:76px;border-radius:18px;border:2px solid var(--line);background:var(--surface-2);text-align:left;padding:14px 16px;display:flex;align-items:center;gap:12px;font-size:18px;line-height:1.45}
+.mitem.word{font-family:var(--f-display);font-size:24px;justify-content:center}
+.mitem .face{width:44px;height:44px;flex:none}
+.mitem.sel{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.mitem.done{border-color:var(--ok);background:var(--breeze-t);cursor:default}
+.mitem .pn{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--ok);color:var(--surface);font-size:15px;font-weight:700}
+@keyframes nudge{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.nudge{animation:nudge .3s ease 2}
+
+/* thermometer */
+.thermo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:start}
+.tube{display:grid;gap:5px;padding:10px;border-radius:999px;background:var(--surface-2);border:2px solid var(--line);width:104px}
+.seg{height:44px;border-radius:12px;border:none;font-weight:700;font-size:17px;background:var(--line);color:var(--ink)}
+.seg[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:1px}
+.bulb{width:84px;height:84px;border-radius:50%;margin:4px auto 0;display:grid;place-items:center;font-family:var(--f-display);font-size:30px;background:var(--surface);border:2px solid var(--line)}
+.tlabel{font-family:var(--f-display);font-size:30px}
+.steps{display:flex;gap:6px;font-size:14px;color:var(--muted)}
+.steps span{padding:4px 12px;border-radius:999px;background:var(--surface-2)}
+.steps span.on{background:var(--ink);color:var(--bg)}
+.energy{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.energy button{min-height:96px;border-radius:18px;border:2px solid var(--line);background:var(--surface-2);font-size:19px;padding:14px;display:grid;gap:4px}
+.energy button b{font-family:var(--f-display);font-weight:400;font-size:24px}
+.say{font-family:var(--f-display);font-size:clamp(26px,4vw,36px);line-height:1.4}
+.say u{text-decoration-thickness:3px;text-underline-offset:8px;text-decoration-color:var(--line)}
+
+/* calm corner */
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.breath{display:grid;justify-items:center;gap:16px;padding-block:12px}
+.orb{width:min(66vw,260px);aspect-ratio:1;max-width:100%;border-radius:50%;background:radial-gradient(circle at 40% 35%,var(--breeze-t),color-mix(in srgb,var(--breeze) 45%,var(--breeze-t)));display:grid;place-items:center;transform:scale(.62);transition:transform 4s ease-in-out}
+.orb .face{width:45%;height:45%}
+.orb.in{transform:scale(1);transition-duration:4s}
+.orb.out{transform:scale(.62);transition-duration:6s}
+.cue{font-family:var(--f-display);font-size:32px;min-height:1.3em}
+.count{font-family:var(--f-display);font-size:min(36vw,170px);line-height:1;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.dots i{width:18px;height:18px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--breeze)}
+.sense{font-family:var(--f-display);font-size:clamp(26px,4vw,34px);line-height:1.4;text-align:center}
+.sense .n{font-size:min(28vw,120px);line-height:1;color:var(--breeze);display:block}
+@media (prefers-reduced-motion:reduce){.orb,.orb.in,.orb.out{transition:none;transform:none}.nudge{animation:none}}
+
+/* help */
+.help-hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:center;background:var(--hand-t);border-radius:var(--r);padding:clamp(18px,3vw,30px)}
+.help-hero .face{width:120px;height:120px}
+.help-hero p{font-family:var(--f-display);font-size:clamp(22px,3.2vw,30px);line-height:1.45}
+.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.person{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:6px}
+.person b{font-family:var(--f-display);font-weight:400;font-size:22px}
+.lines{display:grid;gap:8px}
+.lines p{background:var(--surface-2);border-radius:14px;padding:12px 16px;font-size:19px}
+.hotline{display:flex;flex-wrap:wrap;gap:12px}
+.hotline div{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:12px 18px}
+.hotline b{font-size:30px;font-family:var(--f-display);font-weight:400;user-select:all;font-variant-numeric:tabular-nums}
+.note{font-size:15px;color:var(--muted);border-left:4px solid var(--line);padding-left:12px}
+
+/* overlays */
+.overlay{position:fixed;inset:0;z-index:50;background:color-mix(in srgb,var(--ink) 45%,transparent);display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.dialog{background:var(--surface);border-radius:24px;max-width:540px;width:100%;padding:26px;display:grid;gap:16px;max-height:90vh;overflow:auto}
+.dialog .face{width:96px;height:96px;margin:0 auto}
+.dialog p.big{font-family:var(--f-display);font-size:24px;line-height:1.45;text-align:center}
+.dialog .btns{display:grid;gap:10px}
+.showteacher{position:fixed;inset:0;z-index:60;background:var(--hand-t);display:grid;place-items:center;text-align:center;padding:24px;border:none;width:100%}
+.showteacher .face{width:160px;height:160px;margin:0 auto 16px}
+.showteacher h1{font-size:clamp(40px,9vw,80px)}
+
+/* teacher */
+.form{display:grid;gap:14px}
+.form label{display:flex;gap:12px;align-items:flex-start;font-size:18px}
+.form input{width:24px;height:24px;margin-top:3px;flex:none;accent-color:var(--accent)}
+.tablewrap{overflow-x:auto;border:2px solid var(--line);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:680px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface-2);font-weight:700;font-size:14px}
+.draft{color:var(--storm);font-weight:500;white-space:nowrap}
+
+/* ---------- print ---------- */
+.ptools{display:flex;flex-wrap:wrap;gap:10px 20px}
+.ptools label{display:flex;gap:8px;align-items:center;font-size:17px}
+.ptools input{width:22px;height:22px;accent-color:var(--accent)}
+.sheets{overflow-x:auto;display:grid;gap:18px;justify-content:start;padding-bottom:8px}
+.sheet{width:210mm;min-height:297mm;background:var(--paper);color:var(--paper-ink);padding:10mm;box-shadow:0 1px 4px rgba(0,0,0,.15);display:grid;align-content:start;gap:4mm;font-family:var(--f-body)}
+.sheet h4{margin:0;font-family:var(--f-display);font-weight:400;font-size:14pt;display:flex;justify-content:space-between}
+.sheet h4 small{font-family:var(--f-body);font-size:8pt;color:#5b6573}
+.pgrid{display:grid;grid-template-columns:repeat(3,63mm);grid-auto-rows:86mm;justify-content:center}
+.pc{border:1px dashed var(--paper-line);padding:5mm;display:grid;align-content:start;justify-items:center;text-align:center;gap:2mm;-webkit-print-color-adjust:exact;print-color-adjust:exact;overflow:hidden}
+.pc .face{width:38mm;height:38mm}
+.pc .pw{font-family:var(--f-display);font-size:24pt;line-height:1.1}
+.pc .pz{font-size:9pt;display:flex;gap:2mm;justify-content:center;flex-wrap:wrap}
+.pc .pe{font-size:9pt;color:#5b6573}
+.pc.b{justify-items:start;text-align:left;font-size:10pt;line-height:1.45;align-content:center}
+.pc.b .dt{font-weight:700;font-size:8.5pt;color:#5b6573}
+.pc.b .dd{margin:0 0 2mm}
+.pc.b .pw{font-size:16pt}
+.pc.s{align-content:center;font-family:var(--f-display);font-size:15pt;line-height:1.5}
+.pc.s .sn{font-family:var(--f-body);font-size:8pt;color:#5b6573}
+.pt-sun{background:#FCEED6}.pt-breeze{background:#DCF0E8}.pt-storm{background:#F8E0DA}.pt-rain{background:#E1E6F6}
+.ws{display:grid;gap:6mm;font-size:13pt}
+.ws .wsrow{display:grid;grid-template-columns:40mm 1fr;gap:8mm;align-items:start}
+.ws .tb{display:grid;gap:1.5mm}
+.ws .tb div{border:1.2px solid var(--paper-ink);border-radius:2mm;height:11mm;display:flex;align-items:center;padding-left:3mm;font-size:11pt}
+.ws .quad{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.ws .quad div{border-radius:3mm;padding:3mm;min-height:32mm;font-size:11pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ws .lineq{border-bottom:1.2px solid var(--paper-ink);height:12mm}
+.wallet{display:grid;grid-template-columns:repeat(2,90mm);grid-auto-rows:60mm;justify-content:center;gap:0}
+.wallet .pc{align-content:start;justify-items:start;text-align:left;font-size:10.5pt;line-height:1.5}
+.wallet .pc .face{width:16mm;height:16mm}
+.wallet .fill{border-bottom:1px solid var(--paper-ink);display:block;height:7mm;width:100%}
+@page{size:A4;margin:0}
+@media print{
+  body{background:#fff;padding:0}
+  body::before{display:none}
+  .noprint,.bar,#v-print>.stack>.panel{display:none!important}
+  .view{display:none!important}
+  #v-print{display:block!important}
+  .sheets{overflow:visible;gap:0}
+  .sheet{box-shadow:none;break-after:page;page-break-after:always;width:210mm;min-height:297mm}
+  .sheet[hidden]{display:none!important}
+}
+
+@media (max-width:820px){
+  .hero{grid-template-columns:1fr;gap:12px}
+  .match{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  body{font-size:17px}
+  .map{padding:30px 0 30px 28px;gap:8px}
+  .axis.y{top:30px;bottom:30px}
+  .axis.x,.axis.t{left:28px}
+  .cell{grid-template-columns:1fr;min-height:0;padding:12px}
+  .cell .face{width:56px;height:56px;grid-row:auto}
+  .cell .zd{display:none}
+  .thermo{grid-template-columns:1fr;justify-items:center}
+  .bar .btn.hand span.long{display:none}
+  .help-hero{grid-template-columns:1fr;justify-items:center;text-align:center}
+}
+</style>
+
+<div class="wrap" id="app">
+
+  <!-- ================= 首頁 ================= -->
+  <section class="view" id="v-home">
+    <div class="home-help noprint"><button class="btn hand" data-act="help"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.3-9A5.4 5.4 0 0 1 12 6a5.4 5.4 0 0 1 9.3 6c-2.3 4.5-9.3 9-9.3 9z" fill="currentColor"/></svg>我需要幫忙</button></div>
+    <div class="hero">
+      <div class="hero-copy">
+        <h1>今天的心情，<br>是什麼天氣？</h1>
+        <p class="lede">心情就像天氣，會來也會走，沒有好壞對錯。先問自己兩個問題：<b>舒不舒服？有沒有精神？</b>就找得到它在哪一區。</p>
+        <div class="friends" id="friends"></div>
+      </div>
+      <div class="map" id="map" aria-label="心情天氣圖"></div>
+    </div>
+    <div class="stations" id="stations"></div>
+    <div class="foot">
+      <span>心情天氣站　草案 v0.1（2026-11-05）· 內容待輔導老師審定 · 不登入、不上傳、不留紀錄</span>
+      <a href="#teacher">老師設定與說明 →</a>
+    </div>
+  </section>
+
+  <section class="view" id="v-cards" hidden></section>
+  <section class="view" id="v-detective" hidden></section>
+  <section class="view" id="v-match" hidden></section>
+  <section class="view" id="v-thermo" hidden></section>
+  <section class="view" id="v-calm" hidden></section>
+  <section class="view" id="v-help" hidden></section>
+  <section class="view" id="v-print" hidden></section>
+  <section class="view" id="v-teacher" hidden></section>
+</div>
+
+<div class="overlay noprint" id="modal" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="modal-t" id="modal-box"></div></div>
+<button class="showteacher noprint" id="showteacher" hidden aria-label="點一下關閉"></button>
+
+<script>
+/* =====================================================================
+   內容資料區（輔導老師要改文字，只改這一段；之後放 GitHub Pages 會拆成 data.js）
+   ※ 全部為 Claude 草擬的原創文字，狀態：草案，待輔導老師逐項審定。
+   ===================================================================== */
+const DATA = {
+  version: '草案 v0.1（2026-11-05）',
+  /* 情緒架構：採「情緒象限」（舒服/不舒服 × 有精神/沒力氣），用天氣命名。 */
+  zones: {
+    sun:    { name:'晴天區', pleasant:true,  energy:'high', desc:'有精神，心裡也舒服。',
+              tips:['把好消息分享給一個人。','把這個感覺畫下來或寫下來。','很興奮時也要注意安全，慢慢來。'] },
+    breeze: { name:'微風區', pleasant:true,  energy:'low',  desc:'舒服，安安靜靜、慢慢的。',
+              tips:['慢慢享受這一刻。','跟幫助你的人說聲謝謝。','記住這種感覺，緊張時可以回想。'] },
+    storm:  { name:'雷雨區', pleasant:false, energy:'high', desc:'身體裡有很多力氣在衝，但不舒服。',
+              tips:['先停下來，慢慢呼吸三次。','說出來：「我覺得＿＿，因為＿＿。」','去冷靜角待一下。','請老師或大人幫忙。'] },
+    rain:   { name:'雨天區', pleasant:false, energy:'low',  desc:'沒什麼力氣，心裡也不舒服。',
+              tips:['找信任的人聊一聊。','給自己一個抱抱，或喝口溫水。','做一件小小的、喜歡的事。','累了就休息一下。'] }
+  },
+  /* 動物角色：每隻動物都會有各種心情（不綁定某一區），避免「某動物＝某情緒」的標籤。名字為暫定，可讓學生命名。 */
+  animals: {
+    squirrel: { name:'跳跳', kind:'松鼠',     head:'#C68748', inner:'#F2D2AE', mask:'#F7E4CB', dark:'#8E5B2B', ears:'tuft' },
+    turtle:   { name:'慢慢', kind:'烏龜',     head:'#86B884', inner:'#CFE6C6', mask:'#E7F3DD', dark:'#5E8F5B', ears:'none', shape:'oval', deco:'spots' },
+    pangolin: { name:'阿甲', kind:'穿山甲',   head:'#B9946D', inner:'#E8CFB3', mask:'#F2E3D0', dark:'#86664A', ears:'small', deco:'scales' },
+    bear:     { name:'圓圓', kind:'臺灣黑熊', head:'#4E4A55', inner:'#8E8697', mask:'#EADDC9', dark:'#2E2B33', ears:'round', deco:'moon' }
+  },
+  /* 情緒詞：z=所屬區（可兩區）；x=表情參數；src=來源/審稿狀態 */
+  words: [
+    { w:'開心', z:['sun'], en:'happy', say:'心裡亮亮的，很想笑。', body:'嘴角往上，身體輕輕的。', x:{e:'h',m:1,mo:.35,x:['blush']} },
+    { w:'興奮', z:['sun'], en:'excited', say:'非常開心又很有精神，好像坐不住。', body:'心跳變快，想跳起來或大叫。', x:{b:-.1,r:.6,e:'w',m:1,mo:.7,x:['sparkle']} },
+    { w:'驕傲', z:['sun'], en:'proud', say:'自己努力做到一件事，覺得自己很棒。', body:'抬頭挺胸，想讓別人看看。', x:{b:.15,e:'c',m:.8,x:['sparkle']} },
+    { w:'期待', z:['sun'], en:'looking forward', say:'知道有好事要發生，一直在等。', body:'一直想著那件事，有點坐不住。', x:{r:.4,e:'w',m:.6,mo:.15} },
+    { w:'好奇', z:['sun'], en:'curious', say:'很想知道、很想看看是怎麼回事。', body:'眼睛睜大，身體往前靠。', x:{r:.7,e:'w',mo:.35,mt:'o'} },
+    { w:'驚訝', z:['sun','storm'], en:'surprised', say:'發生沒想到的事，嚇了一跳。驚喜或驚嚇都有可能。', body:'眼睛張大、嘴巴張開。', x:{r:1,e:'w',mo:.8,mt:'o'} },
+    { w:'感謝', z:['sun','breeze'], en:'thankful', say:'別人幫了你，心裡想跟他說謝謝。', body:'胸口暖暖的。', x:{e:'h',m:.6,x:['blush','heart']} },
+    { w:'平靜', z:['breeze'], en:'calm', say:'心裡像沒有風浪的水面，安安穩穩。', body:'呼吸慢慢的，肩膀放鬆。', x:{e:'c',m:.3} },
+    { w:'放鬆', z:['breeze'], en:'relaxed', say:'不用趕、不用擔心，可以慢慢來。', body:'身體軟軟的，很舒服。', x:{e:'c',m:.45,x:['breeze']} },
+    { w:'滿足', z:['breeze'], en:'content', say:'覺得現在這樣剛剛好。', body:'肚子飽飽，心裡也飽飽的。', x:{e:'h',m:.55,x:['blush']} },
+    { w:'安心', z:['breeze'], en:'safe', say:'知道自己是安全的，有人在旁邊。', body:'原本緊緊的地方鬆開了。', x:{e:'c',m:.5} },
+    { w:'溫暖', z:['breeze','sun'], en:'cared for', say:'被別人關心、照顧，心裡熱熱的。', body:'胸口熱熱的，想靠近對方。', x:{e:'h',m:.5,x:['heart']} },
+    { w:'生氣', z:['storm'], en:'angry', say:'覺得不公平或被冒犯，心裡很不舒服。', body:'臉變熱、拳頭握緊、說話變大聲。', x:{b:1,e:'o',m:-.6,x:['vein']} },
+    { w:'煩躁', z:['storm'], en:'annoyed', say:'一直有小事不順，心裡毛毛的。', body:'坐不住、想嘆氣。', x:{b:.6,e:'half',m:-.3,x:['scribble']} },
+    { w:'緊張', z:['storm'], en:'nervous', say:'重要的事快開始了，心裡七上八下。', body:'心跳快、手心流汗、想上廁所。', x:{b:-.5,r:.3,e:'w',mt:'zig',x:['sweat']} },
+    { w:'害怕', z:['storm'], en:'scared', say:'覺得有危險，想逃走或躲起來。', body:'身體縮起來、發抖、心跳很快。', x:{b:-1,r:.4,e:'w',m:-.5,mo:.45} },
+    { w:'擔心', z:['storm','rain'], en:'worried', say:'怕不好的事會發生，一直想著它。', body:'肚子怪怪的、睡不太著。', x:{b:-.8,e:'o',m:-.3,x:['sweat']} },
+    { w:'嫉妒', z:['storm','rain'], en:'jealous', say:'別人有你很想要的東西，心裡酸酸的。', body:'胸口悶悶的，有點不想看。', x:{b:.4,e:'s',m:-.3} },
+    { w:'尷尬', z:['storm'], en:'embarrassed', say:'出了小狀況被別人看到，好想找地洞鑽。', body:'臉紅、想笑又笑不出來。', x:{b:-.4,e:'o',mt:'zig',x:['blush','sweat']} },
+    { w:'害羞', z:['storm','rain'], en:'shy', say:'在別人面前有點不好意思。', body:'臉紅紅的、說話變小聲。', x:{b:-.3,e:'c',m:.15,x:['blush']} },
+    { w:'委屈', z:['storm','rain'], en:'wronged', say:'被誤會或被不公平對待，又生氣又難過。', body:'鼻子酸酸，想哭又說不出口。', x:{b:-.7,e:'o',m:-.55,x:['tear']} },
+    { w:'難過', z:['rain'], en:'sad', say:'失去或沒得到重要的東西，心裡很重。', body:'想哭、沒力氣、不想說話。', x:{b:-.8,e:'o',m:-.7,x:['tear']} },
+    { w:'失望', z:['rain'], en:'disappointed', say:'期待的事沒有發生，心裡空空的。', body:'肩膀垂下來，嘆一口氣。', x:{b:-.4,e:'half',m:-.5} },
+    { w:'孤單', z:['rain'], en:'lonely', say:'覺得身邊沒有人陪、沒有人懂你。', body:'心裡空空的、冷冷的。', x:{b:-.6,e:'half',m:-.4}, help:true },
+    { w:'疲倦', z:['rain'], en:'tired', say:'身體或腦袋用了很多力氣，需要休息。', body:'眼皮重、打哈欠、不想動。', x:{e:'half',m:-.1,x:['zz']} },
+    { w:'無聊', z:['rain'], en:'bored', say:'沒有想做的事，時間過得好慢。', body:'東看西看、提不起勁。', x:{e:'half'} }
+  ],
+  /* 校園情境卡：z=多數人會落在的區；w=可能的情緒詞；tip=因應方法 */
+  scenes: [
+    { t:'下課時，好朋友跑來邀你一起玩鬼抓人。', z:['sun'], w:['開心','興奮'], tip:'說出來：「謝謝你找我！」跑跑跳跳時記得看路。' },
+    { t:'明天就要校外教學了。', z:['sun'], w:['期待','興奮'], tip:'先把要帶的東西準備好，早點睡，明天才有精神。' },
+    { t:'練習好久的直笛曲，今天終於全部吹對。', z:['sun'], w:['驕傲','開心'], tip:'跟自己說「我做到了」，也可以吹給家人聽。' },
+    { t:'抽獎時，竟然抽到你最想要的獎品。', z:['sun'], w:['驚訝','開心'], tip:'深呼吸一下，慢慢享受這個驚喜。' },
+    { t:'午休後，坐在樹下看雲慢慢飄。', z:['breeze'], w:['放鬆','平靜'], tip:'記住這種舒服的感覺，下次緊張時可以回想。' },
+    { t:'考完試回到家，吃到熱熱的晚餐。', z:['breeze'], w:['滿足','安心'], tip:'跟煮飯的人說一聲謝謝。' },
+    { t:'你跌倒了，同學扶你去健康中心。', z:['breeze','sun'], w:['溫暖','感謝'], tip:'找機會跟同學說謝謝，下次你也可以這樣幫別人。' },
+    { t:'排隊時，有人突然插到你前面。', z:['storm'], w:['生氣','煩躁'], tip:'先停下來呼吸三次，再用說的：「請排到後面，謝謝。」' },
+    { t:'等一下就要上台報告。', z:['storm'], w:['緊張','擔心'], tip:'慢慢吸氣、慢慢吐氣，先在心裡練習第一句話。' },
+    { t:'打雷了，教室突然停電變暗。', z:['storm'], w:['害怕','驚訝'], tip:'待在老師和同學身邊，聽老師的指示。' },
+    { t:'同學說你拿了他的橡皮擦，可是你沒有。', z:['storm','rain'], w:['委屈','生氣'], tip:'先冷靜，再把事情說清楚；說不清楚時請老師幫忙。' },
+    { t:'上課回答錯了，有同學笑出聲。', z:['storm','rain'], w:['尷尬','難過'], tip:'答錯是學習的一部分。跟自己說：「沒關係，我在學。」' },
+    { t:'好朋友這個禮拜都跟別人玩。', z:['rain','storm'], w:['孤單','嫉妒','難過'], tip:'可以主動問：「下課可以一起玩嗎？」也可以跟老師聊聊。' },
+    { t:'期待好久的運動會，因為下大雨取消了。', z:['rain'], w:['失望','難過'], tip:'失望可以說出來，也可以想想還有什麼事值得期待。' },
+    { t:'昨晚沒睡好，第一節課一直打哈欠。', z:['rain'], w:['疲倦'], tip:'下課喝點水、動一動身體，今晚早點睡。' },
+    { t:'下雨天不能去操場，只能待在教室。', z:['rain'], w:['無聊','失望'], tip:'找一件教室裡能做的小事，例如畫畫、下棋或看書。' },
+    { t:'轉學來的新同學第一次跟你說話。', z:['storm','sun'], w:['害羞','好奇'], tip:'笑一笑，問他一個問題：「你喜歡玩什麼？」' },
+    { t:'家裡的小狗生病了，要住院幾天。', z:['rain','storm'], w:['擔心','難過'], tip:'把擔心告訴家人，一起想想能為小狗做什麼。' }
+  ],
+  /* 需要幫助時的流程（草案，必做；觸發條件與文字請輔導老師修正） */
+  help: {
+    triggerLevel: 2,              // 心情溫度計選到這個數字以下就提示
+    triggerWords: ['孤單'],        // 在心情溫度計「說說自己」選到這些詞就提示（遊戲中描述別人時不提示）
+    thanks: '謝謝你告訴我。這件事可以跟老師聊聊，你不用一個人承受。',
+    roomLine: '輔導老師就在旁邊。你可以直接跟老師說，或按「給老師看」，讓老師知道你想聊聊。',
+    classLine: '你可以去找下面這些大人。選一個你最信任的就好。',
+    people: [
+      { who:'導師', how:'下課時走到老師身邊，說：「老師，我想跟你說一件事。」' },
+      { who:'輔導室的老師', how:'到輔導室找老師，或請導師陪你去。' },
+      { who:'家裡信任的大人', how:'回家後找爸爸、媽媽、阿公阿嬤或照顧你的人，說：「我有事想跟你說。」' },
+      { who:'其他信任的大人', how:'健康中心的護理師、科任老師，或學校裡你認識的老師。' }
+    ],
+    sayIt: ['我最近心情不太好。','有一件事讓我很難過，我想跟你說。','我不知道怎麼說，可以先陪我一下嗎？'],
+    hotlines: [
+      { name:'安心專線', num:'1925', note:'24 小時，免付費' },
+      { name:'保護專線', num:'113', note:'24 小時，被傷害或看到別人被傷害時' }
+    ]
+  },
+  calm: {
+    senses: [
+      { n:5, t:'找出 5 樣你看得到的東西' },
+      { n:4, t:'摸一摸 4 樣東西，感覺它們' },
+      { n:3, t:'聽聽看，找出 3 種聲音' },
+      { n:2, t:'聞一聞，找出 2 種味道' },
+      { n:1, t:'說出 1 件你喜歡自己的地方' }
+    ]
+  }
+};
+/* ===================== 內容資料區結束 ===================== */
+
+const ZK = ['sun','breeze','storm','rain'];
+const AK = Object.keys(DATA.animals);
+const INK = '#2B2730';
+DATA.words.forEach((w,i)=>{ w.a = AK[i % AK.length]; });
+const WORD = Object.fromEntries(DATA.words.map(w=>[w.w,w]));
+
+/* ---------- settings (per device) ---------- */
+const DEF = { mode:'room', hotline:false, en:true };
+let SET = (()=>{ try{ return Object.assign({},DEF,JSON.parse(localStorage.getItem('mws-settings')||'{}')); }catch(e){ return {...DEF}; } })();
+function saveSet(){ try{ localStorage.setItem('mws-settings',JSON.stringify(SET)); }catch(e){} }
+
+/* ---------- helpers ---------- */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const pick = a=>a[Math.floor(Math.random()*a.length)];
+const shuffle = a=>{ a=[...a]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const overlap = (a,b)=>a.some(z=>b.includes(z));
+const f1 = n=>(+n).toFixed(1);
+
+/* ---------- weather icons ---------- */
+const WX = {
+  sun:`<svg class="wx" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="8" fill="currentColor"/><path d="M20 3v5M20 32v5M3 20h5M32 20h5M8 8l3.5 3.5M28.5 28.5L32 32M8 32l3.5-3.5M28.5 11.5L32 8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`,
+  breeze:`<svg class="wx" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 15h20a5 5 0 1 0-5-5"/><path d="M4 23h27a5 5 0 1 1-5 5"/><path d="M4 31h11"/></g></svg>`,
+  storm:`<svg class="wx" viewBox="0 0 40 40" aria-hidden="true"><path d="M11 23a7 7 0 0 1 1-14 9 9 0 0 1 17 3 5.5 5.5 0 0 1 0 11z" fill="currentColor"/><path d="M21 25l-4 6h5l-3 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  rain:`<svg class="wx" viewBox="0 0 40 40" aria-hidden="true"><path d="M11 23a7 7 0 0 1 1-14 9 9 0 0 1 17 3 5.5 5.5 0 0 1 0 11z" fill="currentColor"/><path d="M14 28l-2 5M21 28l-2 5M28 28l-2 5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`
+};
+const ztag = z=>`<span class="zt ${z}">${WX[z]}${DATA.zones[z].name}</span>`;
+
+/* ---------- programmatic faces ---------- */
+function ears(a){
+  if(a.ears==='tuft') return `<path d="M24 48 L33 8 L52 36Z" fill="${a.head}"/><path d="M96 48 L87 8 L68 36Z" fill="${a.head}"/><path d="M31 39 L34 19 L45 34Z" fill="${a.inner}"/><path d="M89 39 L86 19 L75 34Z" fill="${a.inner}"/>`;
+  if(a.ears==='round') return `<circle cx="28" cy="30" r="14" fill="${a.head}"/><circle cx="92" cy="30" r="14" fill="${a.head}"/><circle cx="28" cy="30" r="7" fill="${a.inner}"/><circle cx="92" cy="30" r="7" fill="${a.inner}"/>`;
+  if(a.ears==='small') return `<ellipse cx="20" cy="60" rx="7" ry="9" fill="${a.inner}" stroke="${a.head}" stroke-width="3"/><ellipse cx="100" cy="60" rx="7" ry="9" fill="${a.inner}" stroke="${a.head}" stroke-width="3"/>`;
+  return '';
+}
+function deco(a){
+  if(a.deco==='scales') return `<g fill="none" stroke="${a.dark}" stroke-width="3" stroke-linecap="round"><path d="M28 46 Q36 34 44 44 Q52 32 60 42 Q68 32 76 44 Q84 34 92 46"/><path d="M38 33 Q46 23 54 31 Q60 21 66 31 Q74 23 82 33"/></g>`;
+  if(a.deco==='spots') return `<g fill="${a.dark}" opacity=".5"><circle cx="45" cy="37" r="5"/><circle cx="61" cy="30" r="6"/><circle cx="77" cy="38" r="4.5"/></g>`;
+  if(a.deco==='moon') return `<path d="M44 104 Q60 114 76 104" stroke="#F1EAD8" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  return '';
+}
+function eye(cx,cy,t){
+  const st = `stroke="${INK}" stroke-width="3" stroke-linecap="round" fill="none"`;
+  switch(t){
+    case 'h': return `<path d="M${cx-6} ${cy+2} Q${cx} ${cy-6} ${cx+6} ${cy+2}" ${st}/>`;
+    case 'c': return `<path d="M${cx-6} ${cy-1} Q${cx} ${cy+5} ${cx+6} ${cy-1}" ${st}/>`;
+    case 'w': return `<circle cx="${cx}" cy="${cy}" r="6.5" fill="#fff" stroke="${INK}" stroke-width="2"/><circle cx="${cx}" cy="${cy+.5}" r="3.6" fill="${INK}"/><circle cx="${cx+1.4}" cy="${cy-1}" r="1.3" fill="#fff"/>`;
+    case 'half': return `<path d="M${cx-5} ${cy} A5 5 0 0 0 ${cx+5} ${cy} Z" fill="${INK}"/><path d="M${cx-6.5} ${cy} L${cx+6.5} ${cy}" ${st}/>`;
+    case 's': return `<ellipse cx="${cx}" cy="${cy}" rx="6.5" ry="4.5" fill="#fff" stroke="${INK}" stroke-width="2"/><circle cx="${cx+3}" cy="${cy+.5}" r="3" fill="${INK}"/><path d="M${cx-7} ${cy-3} L${cx+7} ${cy-4.5}" ${st}/>`;
+    default: return `<circle cx="${cx}" cy="${cy}" r="4.6" fill="${INK}"/><circle cx="${cx+1.5}" cy="${cy-1.6}" r="1.5" fill="#fff"/>`;
+  }
+}
+function mouth(m,mo,mt){
+  const cy=87, w=11, st=`stroke="${INK}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
+  if(mt==='o') return `<ellipse cx="60" cy="${cy+1}" rx="${f1(4+mo*2)}" ry="${f1(3+mo*5)}" fill="${INK}"/>`;
+  if(mt==='zig') return `<path d="M49 ${cy} l5.5 -3 l5.5 3 l5.5 -3 l5.5 3" ${st}/>`;
+  if(mo>.05){
+    const top = cy + (m>0 ? m*2 : m*8), bot = cy + mo*16 + (m>0 ? m*8 : 0);
+    return `<path d="M${60-w} ${cy} Q60 ${f1(top)} ${60+w} ${cy} Q60 ${f1(bot)} ${60-w} ${cy} Z" fill="${INK}"/>`;
+  }
+  return `<path d="M${60-w} ${cy} Q60 ${f1(cy+m*11)} ${60+w} ${cy}" ${st}/>`;
+}
+const star=(x,y,r)=>`<path d="M${x} ${y-r} L${f1(x+r*.28)} ${f1(y-r*.28)} L${x+r} ${y} L${f1(x+r*.28)} ${f1(y+r*.28)} L${x} ${y+r} L${f1(x-r*.28)} ${f1(y+r*.28)} L${x-r} ${y} L${f1(x-r*.28)} ${f1(y-r*.28)}Z" fill="#F2BE3C"/>`;
+const EXTRA = {
+  blush:`<ellipse cx="37" cy="81" rx="6" ry="3.5" fill="#EE9393" opacity=".7"/><ellipse cx="83" cy="81" rx="6" ry="3.5" fill="#EE9393" opacity=".7"/>`,
+  tear:`<path d="M75 74 Q70.5 82 75 85.5 Q79.5 82 75 74Z" fill="#62B3E8"/>`,
+  sweat:`<path d="M96 36 Q90 48 96 52 Q102 48 96 36Z" fill="#9BD3F3" stroke="#5DA6D6" stroke-width="1.2"/>`,
+  sparkle: star(14,30,7)+star(106,22,5.5),
+  zz:`<text x="92" y="32" font-size="16" font-weight="700" fill="#5B6B80" font-family="sans-serif">z</text><text x="103" y="20" font-size="12" font-weight="700" fill="#5B6B80" font-family="sans-serif">z</text>`,
+  vein:`<path d="M90 22 Q94 27 99 22 M90 36 Q94 31 99 36 M88 25 Q93 29 88 33 M101 25 Q96 29 101 33" stroke="#D24E44" stroke-width="2.6" fill="none" stroke-linecap="round"/>`,
+  heart:`<path d="M101 31 C101 26 94 24 94 30 C94 34 101 37 101 40 C101 37 108 34 108 30 C108 24 101 26 101 31Z" fill="#E56A7C"/>`,
+  scribble:`<path d="M91 24 c4 -5 9 3 4 6 c-5 3 -7 -6 0 -6 c7 0 6 9 1 8" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+  breeze:`<path d="M2 54 q8 -4 15 0 M0 64 q9 -4 17 0" stroke="#6DB8A2" stroke-width="2.6" fill="none" stroke-linecap="round"/>`
+};
+function face(ak, x={}, label=''){
+  const a = DATA.animals[ak] || DATA.animals.squirrel;
+  const b=x.b||0, r=x.r||0, m=x.m||0, mo=x.mo||0;
+  const by = 57 - r*7;
+  const brow=(ox,ix)=>`<path d="M${ox} ${f1(by-b*2)} Q${(ox+ix)/2} ${f1(by-2.5-b*1.5)} ${ix} ${f1(by+b*5)}" stroke="${INK}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
+  let s = `<svg class="face" viewBox="0 0 120 120" ${label?`role="img" aria-label="${label}"`:'aria-hidden="true"'}>`;
+  s += ears(a);
+  s += a.shape==='oval' ? `<ellipse cx="60" cy="64" rx="40" ry="44" fill="${a.head}"/>` : `<circle cx="60" cy="64" r="43" fill="${a.head}"/>`;
+  s += deco(a);
+  s += `<ellipse cx="60" cy="75" rx="33" ry="27" fill="${a.mask}"/>`;
+  s += brow(39,53) + brow(81,67);
+  s += eye(47,69,x.e||'o') + eye(73,69,x.e||'o');
+  s += mouth(m,mo,x.mt);
+  (x.x||[]).forEach(k=>{ s += EXTRA[k]||''; });
+  return s + '</svg>';
+}
+const wordFace = (w,ak)=>face(ak||w.a, w.x, `${DATA.animals[ak||w.a].name}覺得${w.w}`);
+
+/* ---------- shared UI ---------- */
+const ICON = {
+  back:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  heart:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-9.3-9A5.4 5.4 0 0 1 12 6a5.4 5.4 0 0 1 9.3 6c-2.3 4.5-9.3 9-9.3 9z" fill="currentColor"/></svg>`,
+  cards:`<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="6" width="14" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="14" y="4" width="14" height="20" rx="3" fill="currentColor" opacity=".25" stroke="currentColor" stroke-width="2.4"/></svg>`,
+  detective:`<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="13" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M19 19l8 8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`,
+  match:`<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="10" height="8" rx="2" fill="currentColor" opacity=".3"/><rect x="19" y="19" width="10" height="8" rx="2" fill="currentColor" opacity=".3"/><path d="M13 9c8 0 0 14 6 14" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`,
+  thermo:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13 5a3 3 0 0 1 6 0v13a6 6 0 1 1-6 0z" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="23" r="3" fill="currentColor"/><path d="M16 21v-9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`,
+  calm:`<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="16" r="5" fill="currentColor" opacity=".35"/></svg>`,
+  print:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 11V4h14v7M9 22H5V11h22v11h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><rect x="9" y="18" width="14" height="10" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>`
+};
+function bar(title){
+  return `<header class="bar noprint"><a class="btn back" href="#home" aria-label="回天氣站">${ICON.back}<span class="small">天氣站</span></a><h2>${title}</h2><button class="btn hand" data-act="help">${ICON.heart}<span class="long">我需要幫忙</span></button></header>`;
+}
+function modal(html){ $('#modal-box').innerHTML = html; $('#modal').hidden = false; const f=$('#modal-box button'); f && f.focus(); }
+function closeModal(){ $('#modal').hidden = true; $('#modal-box').innerHTML=''; }
+function showTeacher(){
+  const el=$('#showteacher');
+  el.innerHTML = `${face('turtle',{e:'c',m:.4})}<h1>我想跟老師聊聊</h1><p class="lead muted" style="margin-top:12px">（老師看到後，點一下畫面就會關掉）</p>`;
+  el.hidden=false; el.focus();
+}
+function helpPrompt(){
+  modal(`${face('bear',{e:'c',m:.35})}<p class="big" id="modal-t">${DATA.help.thanks}</p>
+  <div class="btns"><button class="btn hand big" data-act="help">我想找人聊聊</button>
+  <button class="btn big" data-go="calm">先去冷靜角待一下</button>
+  <button class="btn ghost" data-act="close">我還好，繼續</button></div>`);
+}
+
+/* =========================== 首頁 =========================== */
+function initHome(){
+  $('#friends').innerHTML = AK.map((k,i)=>{ const a=DATA.animals[k]; const ex=[{e:'h',m:.8,mo:.3},{e:'c',m:.4},{r:.6,e:'w',mo:.3,mt:'o'},{e:'h',m:.5,x:['blush']}][i]; return `<div class="friend">${face(k,ex)}<b>${a.name}</b>${a.kind}</div>`; }).join('');
+  const sample = { storm:['生氣','緊張'], sun:['開心','興奮'], rain:['難過','疲倦'], breeze:['平靜','安心'] };
+  const fa = { storm:'pangolin', sun:'squirrel', rain:'turtle', breeze:'bear' };
+  $('#map').innerHTML = `<span class="axis t">點一區，看看裡面的心情</span>
+    <span class="axis y"><span>有精神 ↑</span><span>↓ 沒力氣</span></span>
+    <span class="axis x"><span>← 不舒服</span><span>舒服 →</span></span>` +
+    ['storm','sun','rain','breeze'].map(z=>{ const Z=DATA.zones[z]; const w=WORD[sample[z][0]];
+      return `<button class="cell z-${z}" data-zone="${z}">${face(fa[z],w.x)}<span class="zn">${WX[z]}${Z.name}</span><span class="zd">${Z.desc}</span><span class="zw">${sample[z].join('・')}…</span></button>`; }).join('');
+  const st = [
+    ['cards','認識情緒卡','翻卡片，看每種心情的意思和身體感覺。個人、輔導課開場'],
+    ['detective','情緒偵探','看事件或表情，找出是什麼心情。全班、小組'],
+    ['match','情境配對','把校園裡的事和心情配成一對。小組、個人'],
+    ['thermo','心情溫度計','量一量今天的心情，說出來。不記名、不留紀錄'],
+    ['calm','心情冷靜角','跟著呼吸、數到 10、聽聲音，讓自己平靜下來'],
+    ['print','列印版','情緒卡、情境卡、學習單，沒有平板也能用']
+  ];
+  $('#stations').innerHTML = st.map(([k,n,d])=>`<a class="station" href="#${k}" style="text-decoration:none;color:inherit"><span class="ico">${ICON[k]}</span><b>${n}</b><span>${d}</span></a>`).join('') +
+    `<button class="station help" data-act="help"><span class="ico">${ICON.heart}</span><b>我需要幫忙</b><span>心情很不好的時候，這裡告訴你可以找誰</span></button>`;
+}
+
+/* =========================== 認識情緒卡 =========================== */
+let cardFilter='all';
+function initCards(zone){
+  if(zone) cardFilter=zone;
+  const v=$('#v-cards');
+  const chips = [['all','全部']].concat(ZK.map(z=>[z,DATA.zones[z].name]));
+  v.innerHTML = bar('認識情緒卡') + `<p class="muted">點卡片翻到背面。有些心情可以同時在兩區，例如「委屈」又生氣又難過。</p>
+   <div class="chips" role="group" aria-label="選擇區域">${chips.map(([k,n])=>`<button class="chip" data-filter="${k}" aria-pressed="${k===cardFilter}">${k==='all'?'':WX[k]}${n}</button>`).join('')}</div>
+   <div class="cards" id="cardgrid"></div>`;
+  renderCards();
+}
+function renderCards(){
+  const list = DATA.words.filter(w=>cardFilter==='all'||w.z.includes(cardFilter));
+  $('#cardgrid').innerHTML = list.map(w=>{
+    const z=w.z[0];
+    return `<button class="ecard z-${z}" data-card="${w.w}" aria-label="${w.w}，點一下翻面">
+      <span class="flip">翻面 ↻</span>
+      <span class="front">${wordFace(w)}<span class="w">${w.w}</span>${SET.en?`<span class="en">${w.en}</span>`:''}<span class="tags">${w.z.map(ztag).join('')}</span></span>
+      <span class="back"><span class="w" style="font-size:24px">${w.w}</span><span class="dt">意思</span><span class="dd">${w.say}</span><span class="dt">身體的感覺</span><span class="dd">${w.body}</span>${SET.en?`<span class="dt">英文</span><span class="dd">${w.en}</span>`:''}<span class="dt">可以試試</span><span class="dd">${DATA.zones[z].tips[0]}</span></span>
+    </button>`; }).join('');
+}
+
+/* =========================== 情緒偵探 =========================== */
+let det={solved:0,q:null};
+function initDetective(){
+  $('#v-detective').innerHTML = bar('情緒偵探') + `<div class="stack"><div class="row" style="justify-content:space-between"><p class="muted">選一個你覺得最像的心情。同一區的心情都算破案。</p><div class="stamps" id="stamps"></div></div><div class="panel stack" id="detq"></div></div>`;
+  detNext();
+}
+function detNext(){
+  let q;
+  if(Math.random()<.4){
+    const w=pick(DATA.words), ak=pick(AK);
+    q={kind:'face', zones:w.z, expect:[w.w], ak, word:w, tip:DATA.zones[w.z[0]].tips[0]};
+  }else{
+    const sc=pick(DATA.scenes);
+    q={kind:'scene', zones:sc.z, expect:sc.w, sc, tip:sc.tip};
+  }
+  const right = WORD[pick(q.expect)];
+  const same = shuffle(DATA.words.filter(w=>w!==right && w.z.some(z=>q.zones.includes(z))));
+  const diff = shuffle(DATA.words.filter(w=>!overlap(w.z,q.zones)));
+  const extra = Math.random()<.5 && same.length ? [same[0]] : [];
+  q.opts = shuffle([right, ...extra, ...diff.slice(0, 4-1-extra.length)]);
+  det.q=q; det.done=false;
+  renderDet();
+}
+function renderStamps(){
+  $('#stamps').innerHTML = det.solved ? `破案章 ${Array.from({length:Math.min(det.solved,12)},(_,i)=>`<svg class="stamp" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 13l3.5 3.5L18 10" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`).join('')}${det.solved>12?` ×${det.solved}`:''}` : '';
+}
+function renderDet(){
+  const q=det.q; renderStamps();
+  const head = q.kind==='face'
+    ? `<p class="lead">猜猜看，<b>${DATA.animals[q.ak].name}</b>現在是什麼心情？</p><div class="qface">${face(q.ak,q.word.x)}</div>`
+    : `<p class="muted small">校園事件</p><p class="scene">${q.sc.t}</p><p class="lead">遇到這件事，可能會有什麼心情？</p>`;
+  $('#detq').innerHTML = head + `<div class="opts">${q.opts.map(w=>`<button class="opt" data-det="${w.w}">${w.w}</button>`).join('')}</div><div id="detfb" aria-live="polite"></div>`;
+}
+function detPick(word, btn){
+  const q=det.q; if(det.done) return;
+  const w=WORD[word];
+  if(overlap(w.z,q.zones)){
+    det.done=true; det.solved++;
+    btn.classList.add('right');
+    const others = q.expect.filter(e=>e!==word);
+    $('#detfb').innerHTML = `<div class="feedback good"><b>破案！</b><p>「${word}」是${w.z.map(z=>DATA.zones[z].name).join('，也是')}的心情。${others.length?`有人也可能覺得：${others.join('、')}。`:''}</p><p><b style="font-size:18px">可以試試：</b>${q.tip}</p><div><button class="btn primary big" data-act="detnext">下一題</button></div></div>`;
+    renderStamps();
+  }else{
+    btn.classList.add('tried');
+    const Z=DATA.zones[q.zones[0]];
+    $('#detfb').innerHTML = `<div class="feedback soft"><p>「${word}」也是一種心情，有人可能真的會這樣覺得。</p><p>想一想：這件事讓人比較<b style="font-size:20px">${Z.pleasant?'舒服':'不舒服'}</b>，身體比較<b style="font-size:20px">${Z.energy==='high'?'有精神':'沒力氣'}</b>？再找找看。</p></div>`;
+  }
+}
+
+/* =========================== 情境配對 =========================== */
+let mt={};
+function initMatch(){
+  $('#v-match').innerHTML = bar('情境配對') + `<div class="stack"><p class="muted">先點一件事，再點一個心情，配成一對。同一區的心情都算配對成功。</p><div class="panel stack" id="mboard"></div></div>`;
+  matchNew();
+}
+function matchNew(){
+  const zs = shuffle(ZK).slice(0,3);
+  const scenes = zs.map(z=>pick(DATA.scenes.filter(s=>s.z.length===1 && s.z[0]===z)));
+  const words = zs.map(z=>pick(DATA.words.filter(w=>w.z.length===1 && w.z[0]===z)));
+  mt={ scenes, words:shuffle(words), sel:null, pairs:{}, n:0 };
+  renderMatch();
+}
+function renderMatch(){
+  const done = mt.n===mt.scenes.length;
+  $('#mboard').innerHTML = `<div class="match">
+    <div class="mcol">${mt.scenes.map((s,i)=>{ const p=mt.pairs['s'+i]; return `<button class="mitem ${p?'done':''} ${mt.sel===i?'sel':''}" data-ms="${i}" ${p?'aria-disabled="true"':''}>${p?`<span class="pn">${p}</span>`:''}<span>${s.t}</span></button>`; }).join('')}</div>
+    <div class="mcol">${mt.words.map((w,i)=>{ const p=mt.pairs['w'+i]; return `<button class="mitem word ${p?'done':''}" data-mw="${i}" ${p?'aria-disabled="true"':''}>${p?`<span class="pn">${p}</span>`:''}${wordFace(w)}${w.w}</button>`; }).join('')}</div>
+  </div>
+  <div id="mfb" aria-live="polite">${done?`<div class="feedback good"><b>全部配好了！</b><p>想一想：你有沒有遇過其中一件事？那時候你是什麼心情？</p><div><button class="btn primary big" data-act="matchnew">再玩一回</button></div></div>`:`<p class="muted">${mt.sel===null?'先點左邊的一件事。':'很好，現在點右邊的一個心情。'}</p>`}</div>`;
+}
+function matchScene(i){ if(mt.pairs['s'+i]) return; mt.sel=i; renderMatch(); }
+function matchWord(i, btn){
+  if(mt.pairs['w'+i]) return;
+  if(mt.sel===null){ $('#mfb').innerHTML='<p class="muted">先點左邊的一件事喔。</p>'; return; }
+  const s=mt.scenes[mt.sel], w=mt.words[i];
+  if(overlap(s.z,w.z)){
+    mt.n++; mt.pairs['s'+mt.sel]=mt.n; mt.pairs['w'+i]=mt.n; const tip=s.tip; mt.sel=null; renderMatch();
+    if(mt.n<mt.scenes.length) $('#mfb').innerHTML=`<div class="feedback good"><p>配對成功！可以試試：${tip}</p></div>`;
+  }else{
+    btn.classList.remove('nudge'); void btn.offsetWidth; btn.classList.add('nudge');
+    const Z=DATA.zones[s.z[0]];
+    $('#mfb').innerHTML=`<div class="feedback soft"><p>再想想：這件事讓人比較${Z.pleasant?'舒服':'不舒服'}、${Z.energy==='high'?'有精神':'沒力氣'}。</p></div>`;
+  }
+}
+
+/* =========================== 心情溫度計 =========================== */
+const TLABEL = {10:'超級好',9:'很好',8:'不錯',7:'還不錯',6:'還可以',5:'普普通通',4:'有點不好',3:'不太好',2:'很不好',1:'非常糟'};
+let th={};
+function tColor(n){ return n>=8?'var(--sun-t)':n>=6?'var(--breeze-t)':n>=4?'var(--storm-t)':'var(--rain-t)'; }
+function initThermo(){
+  th={step:1,level:null,energy:null,word:null};
+  $('#v-thermo').innerHTML = bar('心情溫度計') + `<div class="stack"><p class="muted">這裡不會記下你選了什麼。關掉頁面就沒有了。</p><div class="panel stack" id="tbox"></div></div>`;
+  renderThermo();
+}
+function renderThermo(){
+  const steps = `<div class="steps" aria-hidden="true">${['量溫度','有沒有精神','選心情','說出來'].map((s,i)=>`<span class="${th.step===i+1?'on':''}">${i+1} ${s}</span>`).join('')}</div>`;
+  let h='';
+  if(th.step===1){
+    h = `<h3>今天的心情，大概幾度？</h3><div class="thermo"><div><div class="tube" role="group" aria-label="心情溫度 1 到 10">${[10,9,8,7,6,5,4,3,2,1].map(n=>`<button class="seg" data-lv="${n}" aria-pressed="${th.level===n}" style="background:${th.level&&n<=th.level?tColor(th.level):'var(--line)'}">${n}</button>`).join('')}</div><div class="bulb" style="background:${th.level?tColor(th.level):'var(--surface)'}">${th.level||'?'}</div></div>
+      <div class="stack" style="align-content:center">${th.level?`<p class="tlabel">${th.level} 度：${TLABEL[th.level]}</p><p class="muted">10 是心裡超級好，1 是心裡非常糟。選好了就按下一步。</p><div><button class="btn primary big" data-act="t-next">下一步</button></div>`:`<p class="lead muted">點溫度計上的數字。<br>10 是心裡超級好，1 是心裡非常糟。</p>`}</div></div>`;
+  }else if(th.step===2){
+    h = `<h3>身體現在的感覺比較像哪一個？</h3><div class="energy">
+      <button data-en="high"><b>有很多力氣</b><span class="muted">靜不下來、想動、心跳比較快</span></button>
+      <button data-en="mid"><b>剛剛好</b><span class="muted">不特別有力氣，也不特別累</span></button>
+      <button data-en="low"><b>沒什麼力氣</b><span class="muted">慢慢的、累累的、不想動</span></button></div>
+      <div><button class="btn ghost" data-act="t-back">← 上一步</button></div>`;
+  }else if(th.step===3){
+    const valOk = Z=> th.level>=7 ? Z.pleasant : th.level<=4 ? !Z.pleasant : true;
+    const zs = ZK.filter(z=>valOk(DATA.zones[z]) && (th.energy==='mid' || DATA.zones[z].energy===th.energy));
+    const list = DATA.words.filter(w=>overlap(w.z,zs));
+    h = `<h3>這些心情裡，哪一個最像你？</h3><p class="muted">${zs.map(ztag).join(' ')}</p><div class="opts">${list.map(w=>`<button class="opt" data-tw="${w.w}">${wordFace(w)}${w.w}</button>`).join('')}<button class="opt" data-tw="" style="font-size:20px">說不出來</button></div>
+      <div><button class="btn ghost" data-act="t-back">← 上一步</button></div>`;
+  }else{
+    const w = th.word ? WORD[th.word] : null;
+    const z = w ? w.z[0] : (th.level>=7?'breeze':'rain');
+    h = w ? `<div class="row" style="gap:24px;align-items:center"><div style="width:150px">${wordFace(w)}</div><div class="stack" style="flex:1;min-width:0">
+        <p class="say">我現在覺得<u>${w.w}</u>，<br>心情溫度 ${th.level} 度。</p>
+        <p class="lead">試試把這句話說出來，再接一句：「因為……」</p></div></div>
+        <div class="feedback good"><p><b style="font-size:20px">${DATA.zones[z].name}的小方法：</b>${DATA.zones[z].tips.join('　')}</p></div>`
+      : `<div class="row" style="gap:24px;align-items:center"><div style="width:150px">${face('turtle',{e:'c',m:.3})}</div><div class="stack" style="flex:1;min-width:0">
+        <p class="say">說不出來，也沒關係。</p><p class="lead">心情有時候像霧，看不清楚。可以先去冷靜角待一下，或找老師陪你想一想。</p></div></div>`;
+    h += `<div class="row"><button class="btn primary big" data-act="t-again">再量一次</button><a class="btn big" href="#calm">去冷靜角</a><button class="btn hand big" data-act="help">我想找人聊聊</button></div>`;
+  }
+  $('#tbox').innerHTML = steps + h;
+}
+
+/* =========================== 心情冷靜角 =========================== */
+let calm={tab:'breath',timers:[],audio:null};
+function clearCalm(){ calm.timers.forEach(clearTimeout); calm.timers=[]; stopAudio(); }
+function initCalm(tab){
+  clearCalm(); if(tab) calm.tab=tab;
+  const tabs=[['breath','慢慢呼吸'],['count','數到 10'],['sound','聽聲音'],['senses','五感找一找']];
+  $('#v-calm').innerHTML = bar('心情冷靜角') + `<div class="stack"><div class="tabs" role="group" aria-label="選一種方法">${tabs.map(([k,n])=>`<button class="chip" data-calm="${k}" aria-pressed="${calm.tab===k}">${n}</button>`).join('')}</div><div class="panel" id="cbox"></div></div>`;
+  renderCalm();
+}
+function later(fn,ms){ calm.timers.push(setTimeout(fn,ms)); }
+function renderCalm(){
+  const c=$('#cbox');
+  if(calm.tab==='breath'){
+    c.innerHTML = `<div class="breath"><div class="orb" id="orb">${face('turtle',{e:'c',m:.4})}</div><p class="cue" id="cue" aria-live="polite">準備好了嗎？</p><p class="muted" id="cue2">跟著圓圈：變大時吸氣，變小時吐氣。一共 5 次。</p><button class="btn primary big" data-act="breath">開始</button></div>`;
+  }else if(calm.tab==='count'){
+    c.innerHTML = `<div class="breath"><div class="count" id="cnum" aria-live="polite">1</div><div class="dots" id="cdots">${'<i></i>'.repeat(10)}</div><p class="muted">每數一個數字，就慢慢吐一口氣。</p><button class="btn primary big" data-act="count">開始一起數</button></div>`;
+  }else if(calm.tab==='sound'){
+    c.innerHTML = `<div class="breath"><div style="width:160px">${face('bear',{e:'c',m:.45,x:['breeze']})}</div><p class="lead" style="text-align:center">選一種聲音，閉上眼睛聽一會兒。<br><span class="muted small">聲音是電腦即時產生的，不需要網路。</span></p><div class="row" style="justify-content:center"><button class="btn big" data-snd="pad">輕輕的音樂</button><button class="btn big" data-snd="rain">下雨聲</button><button class="btn ghost big" data-snd="stop">停止</button></div><p class="muted" id="sndst" aria-live="polite"></p></div>`;
+  }else{
+    calm.si = 0; renderSense();
+  }
+}
+function renderSense(){
+  const s=DATA.calm.senses[calm.si];
+  $('#cbox').innerHTML = s ? `<div class="breath"><p class="sense"><span class="n">${s.n}</span>${s.t}</p><p class="muted">慢慢來，不用急。找到了就按下一步。</p><button class="btn primary big" data-act="sense">下一步</button></div>`
+    : `<div class="breath"><div style="width:150px">${face('squirrel',{e:'h',m:.6})}</div><p class="sense">做得很好！<br>現在的心情，有沒有不一樣一點？</p><div class="row" style="justify-content:center"><button class="btn big" data-calm="senses">再做一次</button><a class="btn primary big" href="#thermo">去量心情溫度</a></div></div>`;
+}
+function startBreath(btn){
+  btn.hidden=true; const orb=$('#orb'), cue=$('#cue'), cue2=$('#cue2');
+  let i=0;
+  const cycle=()=>{
+    if(i>=5){ orb.className='orb'; cue.textContent='做得很好！'; cue2.textContent='身體有沒有比較放鬆？想再做一次可以按開始。'; btn.hidden=false; return; }
+    i++; orb.className='orb in'; cue.textContent='吸氣……'; cue2.textContent=`第 ${i} 次，慢慢數 1、2、3、4`;
+    later(()=>{ orb.className='orb out'; cue.textContent='吐氣……'; cue2.textContent='慢慢數 1、2、3、4、5、6'; later(cycle,6000); },4000);
+  };
+  cycle();
+}
+function startCount(btn){
+  btn.hidden=true; let n=1; const num=$('#cnum'), dots=$$('#cdots i');
+  const tick=()=>{ num.textContent=n; dots.forEach((d,j)=>d.classList.toggle('on',j<n));
+    if(n<10){ n++; later(tick,1600); } else later(()=>{ num.textContent='10'; btn.textContent='再數一次'; btn.hidden=false; },800); };
+  tick();
+}
+function stopAudio(){ if(calm.audio){ try{ calm.audio.ctx.close(); }catch(e){} calm.audio=null; } const st=$('#sndst'); if(st) st.textContent=''; }
+function playSound(kind){
+  stopAudio(); if(kind==='stop') return;
+  const AC = window.AudioContext||window.webkitAudioContext; if(!AC){ $('#sndst').textContent='這台裝置不能播放聲音。'; return; }
+  const ctx=new AC(); try{ ctx.resume(); }catch(e){}
+  const out=ctx.createGain(); out.gain.setValueAtTime(0,ctx.currentTime); out.gain.linearRampToValueAtTime(1, ctx.currentTime+2); out.connect(ctx.destination);
+  if(kind==='pad'){
+    [[261.63,.05],[329.63,.04],[392,.04],[523.25,.02]].forEach(([f,g],i)=>{
+      const o=ctx.createOscillator(); o.type='sine'; o.frequency.value=f;
+      const gn=ctx.createGain(); gn.gain.value=g; const l=ctx.createOscillator(); l.frequency.value=.07+i*.03; const lg=ctx.createGain(); lg.gain.value=g*.8;
+      l.connect(lg); lg.connect(gn.gain); o.connect(gn); gn.connect(out); o.start(); l.start();
+    });
+  }else{
+    const len=ctx.sampleRate*2, buf=ctx.createBuffer(1,len,ctx.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+    const src=ctx.createBufferSource(); src.buffer=buf; src.loop=true;
+    const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900;
+    const g=ctx.createGain(); g.gain.value=.12; src.connect(lp); lp.connect(g); g.connect(out); src.start();
+  }
+  calm.audio={ctx}; $('#sndst').textContent = kind==='pad'?'正在播放：輕輕的音樂':'正在播放：下雨聲';
+}
+
+/* =========================== 需要幫助時 =========================== */
+function initHelp(){
+  const H=DATA.help, room = SET.mode==='room';
+  $('#v-help').innerHTML = bar('需要幫忙的時候') + `<div class="stack">
+    <div class="help-hero">${face('bear',{e:'c',m:.35})}<p>${H.thanks}</p></div>
+    ${room ? `<div class="panel stack"><p class="lead">${H.roomLine}</p><div class="row"><button class="btn hand big" data-act="showteacher">給老師看</button><a class="btn big" href="#calm">先去冷靜角</a></div></div>` : ''}
+    <div class="stack"><h3>${room?'離開輔導室以後，也可以找這些大人':H.classLine}</h3>
+      <div class="people">${H.people.map(p=>`<div class="person"><b>${p.who}</b><span>${p.how}</span></div>`).join('')}</div></div>
+    <div class="stack"><h3>不知道怎麼開口？可以這樣說</h3><div class="lines">${H.sayIt.map(s=>`<p>「${s}」</p>`).join('')}</div></div>
+    ${SET.hotline ? `<div class="stack"><h3>也可以打電話</h3><div class="hotline">${H.hotlines.map(h=>`<div><span class="muted small">${h.name}</span><br><b>${h.num}</b><br><span class="small muted">${h.note}</span></div>`).join('')}</div></div>` : ''}
+    ${room ? '' : `<div class="row"><button class="btn hand big" data-act="showteacher">給大人看的畫面</button><a class="btn big" href="#calm">等待時，先去冷靜角</a></div>`}
+    <p class="note">給老師：這個工具不會通知任何人，也不留下紀錄。學生看到這一頁時，需要真人主動關心。</p>
+  </div>`;
+}
+
+/* =========================== 列印版 =========================== */
+const PRINT_DEF = { front:true, back:true, scenes:true, sheet:true, wallet:true };
+let PSEL={...PRINT_DEF};
+function chunk(a,n){ const r=[]; for(let i=0;i<a.length;i+=n) r.push(a.slice(i,i+n)); return r; }
+function initPrint(){
+  const opts=[['front','情緒卡（正面）'],['back','情緒卡（背面）'],['scenes','情境卡'],['sheet','心情溫度計學習單'],['wallet','求助小卡']];
+  const pages=[];
+  const wpages = chunk(DATA.words,9);
+  wpages.forEach((pg,pi)=>pages.push(['front',`<h4>情緒卡 正面 ${pi+1}/${wpages.length}<small>A4・沿虛線剪下</small></h4><div class="pgrid">${pg.map(w=>`<div class="pc pt-${w.z[0]}">${wordFace(w)}<span class="pw">${w.w}</span><span class="pz">${w.z.map(z=>DATA.zones[z].name).join('・')}</span>${SET.en?`<span class="pe">${w.en}</span>`:''}</div>`).join('')}</div>`]));
+  wpages.forEach((pg,pi)=>{
+    const rows=chunk(pg,3).map(r=>{ while(r.length<3) r.push(null); return r.reverse(); }).flat();
+    pages.push(['back',`<h4>情緒卡 背面 ${pi+1}/${wpages.length}<small>雙面列印選「長邊翻頁」，每列已左右對調</small></h4><div class="pgrid">${rows.map(w=>w?`<div class="pc b"><span class="pw">${w.w}</span><span class="dt">意思</span><span class="dd">${w.say}</span><span class="dt">身體的感覺</span><span class="dd">${w.body}</span><span class="dt">可以試試</span><span class="dd">${DATA.zones[w.z[0]].tips[0]}</span></div>`:'<div class="pc" style="border-color:transparent"></div>').join('')}</div>`]);
+  });
+  const spages=chunk(DATA.scenes,9);
+  spages.forEach((pg,pi)=>pages.push(['scenes',`<h4>校園情境卡 ${pi+1}/${spages.length}<small>配情緒卡一起玩：抽一張事件，找一張心情</small></h4><div class="pgrid">${pg.map((s,i)=>`<div class="pc s"><span class="sn">情境 ${pi*9+i+1}</span>${s.t}</div>`).join('')}</div>`]));
+  pages.push(['sheet',`<h4>心情溫度計 學習單<small>不用寫名字</small></h4><div class="ws">
+    <p>日期：＿＿＿＿＿＿＿＿</p>
+    <div class="wsrow"><div class="tb">${[10,9,8,7,6,5,4,3,2,1].map(n=>`<div>${n}　${TLABEL[n]}</div>`).join('')}</div>
+      <div class="ws"><p>① 今天的心情大概幾度？把那一格塗上顏色。</p><p>② 身體的感覺比較像：□ 有很多力氣　□ 剛剛好　□ 沒什麼力氣</p>
+      <p>③ 我的心情在哪一區？圈起來。</p>
+      <div class="quad"><div class="pt-storm"><b>雷雨區</b><br>有精神、不舒服<br>生氣・緊張・害怕・擔心</div><div class="pt-sun"><b>晴天區</b><br>有精神、舒服<br>開心・興奮・期待・驕傲</div><div class="pt-rain"><b>雨天區</b><br>沒力氣、不舒服<br>難過・失望・疲倦・孤單</div><div class="pt-breeze"><b>微風區</b><br>沒力氣、舒服<br>平靜・放鬆・安心・滿足</div></div></div></div>
+    <p>④ 我現在覺得＿＿＿＿＿＿＿＿，因為</p><div class="lineq"></div><div class="lineq"></div>
+    <p>⑤ 我可以試試這個方法：</p><div class="lineq"></div>
+    <p style="font-size:11pt">心情很不好的時候，可以告訴導師、輔導室的老師，或家裡信任的大人。你不用一個人承受。</p></div>`]);
+  pages.push(['wallet',`<h4>求助小卡<small>剪下後放在鉛筆盒或書包裡</small></h4><div class="wallet">${Array.from({length:8},()=>`<div class="pc">${face('bear',{e:'c',m:.35})}<b>心情很不好的時候</b><span>我可以找：</span><span class="fill"></span><span class="fill"></span><span style="font-size:9pt">我可以說：「我想跟你說一件事。」</span></div>`).join('')}</div>`]);
+  $('#v-print').innerHTML = bar('列印版') + `<div class="stack">
+    <div class="panel stack noprint"><p>勾選要印的內容，然後用瀏覽器的列印功能（電腦按 <b>Ctrl＋P</b>，Mac 按 <b>⌘＋P</b>；iPad 用 Safari 的「分享 → 列印」）。紙張選 A4、邊界「無」、縮放 100%，並勾選「背景圖形」才會印出底色。</p>
+      <p class="small muted">如果在 Claude 裡面按列印沒有反應，請先把這個頁面用瀏覽器直接打開再印。之後放上學校網站就沒有這個問題。</p>
+      <div class="ptools">${opts.map(([k,n])=>`<label><input type="checkbox" id="pp-${k}" data-pp="${k}" ${PSEL[k]?'checked':''}>${n}</label>`).join('')}</div></div>
+    <div class="sheets">${pages.map(([k,h])=>`<div class="sheet" data-pk="${k}" ${PSEL[k]?'':'hidden'}>${h}</div>`).join('')}</div></div>`;
+}
+
+/* =========================== 老師設定 =========================== */
+function initTeacher(){
+  $('#v-teacher').innerHTML = bar('老師設定與說明') + `<div class="stack">
+    <div class="panel stack"><h3>這台裝置的設定</h3><div class="form">
+      <label><input type="radio" name="mode" id="mode-room" value="room" ${SET.mode==='room'?'checked':''}><span><b>輔導室模式</b><br><span class="muted small">老師就在旁邊。「我需要幫忙」頁面會先請學生直接跟老師說。</span></span></label>
+      <label><input type="radio" name="mode" id="mode-class" value="class" ${SET.mode==='class'?'checked':''}><span><b>教室／家裡模式</b><br><span class="muted small">旁邊不一定有老師。頁面會清楚列出可以找誰、怎麼開口。</span></span></label>
+      <label><input type="checkbox" id="set-hotline" ${SET.hotline?'checked':''}><span><b>顯示專線電話</b>（安心專線 1925、保護專線 113）<br><span class="muted small">預設關閉。是否適合國小學生，請輔導老師決定。</span></span></label>
+      <label><input type="checkbox" id="set-en" ${SET.en?'checked':''}><span><b>情緒卡顯示英文</b></span></label>
+    </div><p class="muted small">設定只存在這台裝置的瀏覽器，不含任何學生資料。</p></div>
+
+    <div class="panel stack"><h3>給使用老師的說明</h3><ul class="stack" style="margin:0;padding-left:1.2em;gap:8px">
+      <li><b>不登入、不上傳、不留紀錄。</b>心情溫度計選了什麼都不會存下來，換頁或關掉就消失，下一位學生看不到。</li>
+      <li><b>工具不會自動通知任何人。</b>學生按了「我需要幫忙」，需要旁邊的大人主動關心。</li>
+      <li><b>沒有分數、沒有排行榜、不記錯題。</b>情緒偵探和情境配對只要選到同一區的心情就算對。</li>
+      <li><b>情緒分類用「舒服 × 有精神」四區。</b>用天氣命名（晴天、微風、雷雨、雨天），一個詞可以同時在兩區。</li>
+      <li><b>四隻動物每一隻都會有各種心情</b>，不綁定某一種情緒，避免「某動物＝某情緒」的聯想。名字暫定，可以讓學生命名。</li>
+      <li>可以直接用網址打開某個遊戲，例如網址後面加 <code>#calm</code> 就是冷靜角（給之後 3D 校園的雅雅老師入口用）。</li>
+    </ul></div>
+
+    <div class="panel stack"><h3>審稿用：情緒詞（${DATA.words.length} 個）</h3><p class="muted small">全部為原創草擬文字，沒有使用市售品內容。請逐項確認或修改，並補上來源（課綱、公開教材、實務經驗）。</p>
+      <div class="tablewrap"><table><thead><tr><th>詞</th><th>區</th><th>意思</th><th>身體的感覺</th><th>英文</th><th>來源／狀態</th></tr></thead><tbody>
+      ${DATA.words.map(w=>`<tr><td><b>${w.w}</b>${w.help?'<br><span class="small draft">求助提示詞</span>':''}</td><td>${w.z.map(z=>DATA.zones[z].name).join('<br>')}</td><td>${w.say}</td><td>${w.body}</td><td>${w.en}</td><td class="draft">草案・待審</td></tr>`).join('')}</tbody></table></div></div>
+
+    <div class="panel stack"><h3>審稿用：校園情境卡（${DATA.scenes.length} 張）</h3>
+      <div class="tablewrap"><table><thead><tr><th>#</th><th>情境</th><th>區</th><th>可能的心情</th><th>因應方法</th><th>狀態</th></tr></thead><tbody>
+      ${DATA.scenes.map((s,i)=>`<tr><td>${i+1}</td><td>${s.t}</td><td>${s.z.map(z=>DATA.zones[z].name).join('<br>')}</td><td>${s.w.join('、')}</td><td>${s.tip}</td><td class="draft">草案・待審</td></tr>`).join('')}</tbody></table></div></div>
+
+    <div class="panel stack"><h3>審稿用：需要幫助時的流程</h3><div class="tablewrap"><table><tbody>
+      <tr><th>什麼時候提示</th><td>心情溫度計選到 ${DATA.help.triggerLevel} 度以下；或在溫度計選到「${DATA.help.triggerWords.join('、')}」。遊戲裡描述別人的心情時不提示。任何畫面右上角都有「我需要幫忙」。</td><td class="draft">待審</td></tr>
+      <tr><th>提示怎麼說</th><td>${DATA.help.thanks}</td><td class="draft">待審</td></tr>
+      <tr><th>帶去哪裡</th><td>${DATA.help.people.map(p=>p.who).join('、')}</td><td class="draft">待審</td></tr>
+      <tr><th>輔導室模式</th><td>${DATA.help.roomLine}</td><td class="draft">待審</td></tr>
+      <tr><th>專線</th><td>${DATA.help.hotlines.map(h=>`${h.name} ${h.num}（${h.note}）`).join('；')}。預設不顯示。</td><td class="draft">待審</td></tr>
+    </tbody></table></div></div>
+  </div>`;
+}
+
+/* =========================== router & events =========================== */
+const VIEWS={home:initHome,cards:initCards,detective:initDetective,match:initMatch,thermo:initThermo,calm:initCalm,help:initHelp,print:initPrint,teacher:initTeacher};
+function route(){
+  const k = (location.hash||'').slice(1);
+  const key = VIEWS[k] ? k : 'home';
+  clearCalm(); closeModal();
+  $$('.view').forEach(v=>{ v.hidden = v.id!=='v-'+key; });
+  VIEWS[key]();
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+function go(k){ if(location.hash==='#'+k) route(); else location.hash=k; }
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,[data-go]'); if(!t) return;
+  const d=t.dataset;
+  if(d.act==='help'){ closeModal(); go('help'); return; }
+  if(d.act==='close'){ closeModal(); return; }
+  if(d.go){ closeModal(); go(d.go); return; }
+  if(d.act==='showteacher'){ showTeacher(); return; }
+  if(t.id==='showteacher'){ t.hidden=true; return; }
+  if(d.zone){ cardFilter=d.zone; go('cards'); return; }
+  if(d.filter){ cardFilter=d.filter; $$('[data-filter]').forEach(c=>c.setAttribute('aria-pressed',c.dataset.filter===cardFilter)); renderCards(); return; }
+  if(d.card){ t.classList.toggle('flipped'); return; }
+  if(d.det!==undefined){ detPick(d.det,t); return; }
+  if(d.act==='detnext'){ detNext(); return; }
+  if(d.ms!==undefined){ matchScene(+d.ms); return; }
+  if(d.mw!==undefined){ matchWord(+d.mw,t); return; }
+  if(d.act==='matchnew'){ matchNew(); return; }
+  if(d.lv){ th.level=+d.lv; renderThermo(); return; }
+  if(d.act==='t-next'){ th.step=2; renderThermo(); if(th.level<=DATA.help.triggerLevel) helpPrompt(); return; }
+  if(d.en){ th.energy=d.en; th.step=3; renderThermo(); return; }
+  if(d.tw!==undefined){ th.word=d.tw||null; th.step=4; renderThermo(); if(th.word && (WORD[th.word].help || DATA.help.triggerWords.includes(th.word))) helpPrompt(); return; }
+  if(d.act==='t-back'){ th.step=Math.max(1,th.step-1); renderThermo(); return; }
+  if(d.act==='t-again'){ initThermo(); return; }
+  if(d.calm){ initCalm(d.calm); return; }
+  if(d.act==='breath'){ startBreath(t); return; }
+  if(d.act==='count'){ startCount(t); return; }
+  if(d.snd){ playSound(d.snd); return; }
+  if(d.act==='sense'){ calm.si++; renderSense(); return; }
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.name==='mode'){ SET.mode=t.value; saveSet(); }
+  else if(t.id==='set-hotline'){ SET.hotline=t.checked; saveSet(); }
+  else if(t.id==='set-en'){ SET.en=t.checked; saveSet(); }
+  else if(t.dataset.pp){ PSEL[t.dataset.pp]=t.checked; $$(`.sheet[data-pk="${t.dataset.pp}"]`).forEach(s=>s.hidden=!t.checked); }
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(!$('#modal').hidden) closeModal(); const st=$('#showteacher'); if(!st.hidden) st.hidden=true; } });
+$('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
+window.addEventListener('hashchange',route);
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) stopAudio(); });
+route();
+</script>
