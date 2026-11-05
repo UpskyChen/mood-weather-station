@@ -1,5 +1,12 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="心情天氣站：給輔導室與班級輔導課使用的原創情緒教育小遊戲。不登入、不上傳、不留紀錄。">
+<meta name="theme-color" content="#EDF2F6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='9' fill='%23C9821C'/%3E%3Cpath d='M20 3v6M20 31v6M3 20h6M31 20h6M8 8l4 4M28 28l4 4M8 32l4-4M28 12l4-4' stroke='%23C9821C' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
 <title>心情天氣站</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap">
@@ -11,6 +18,7 @@
   --storm:#C0503F; --storm-t:#F8E0DA; --rain:#5167AE; --rain-t:#E1E6F6;
   --accent:#2C5DA8; --hand:#6E45A8; --on-hand:#FFFFFF; --hand-t:#EEE5F8;
   --ok:#2F8B70; --paper:#FFFFFF; --paper-ink:#1F2733; --paper-line:#AEB9C6;
+  --accent-t:#DCE7F7; --sky1:#C6DFF6; --sky2:#E0ECF8; --sky3:#EDF2F6; --cloud:#FFFFFF; --orb:#F6C453; --ray-o:1; --moon-o:0; --star-o:0; --deco-o:.17;
   --f-display:"Huninn","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
   --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
   --r:20px;
@@ -21,6 +29,7 @@
     --sun:#F0B455; --sun-t:#3A2E1B; --breeze:#5CC4A3; --breeze-t:#163128;
     --storm:#EE8172; --storm-t:#3B221F; --rain:#93A6E6; --rain-t:#202943;
     --accent:#8DB3EE; --hand:#BC97EA; --on-hand:#1B1226; --hand-t:#2B2140; --ok:#5CC4A3;
+    --accent-t:#1D2B42; --sky1:#1B2945; --sky2:#172136; --sky3:#131A25; --cloud:#28354F; --orb:#E9E2C6; --ray-o:0; --moon-o:1; --star-o:.9; --deco-o:.24;
     color-scheme:dark;
   }
 }
@@ -29,11 +38,12 @@
   --sun:#F0B455; --sun-t:#3A2E1B; --breeze:#5CC4A3; --breeze-t:#163128;
   --storm:#EE8172; --storm-t:#3B221F; --rain:#93A6E6; --rain-t:#202943;
   --accent:#8DB3EE; --hand:#BC97EA; --on-hand:#1B1226; --hand-t:#2B2140; --ok:#5CC4A3;
+  --accent-t:#1D2B42; --sky1:#1B2945; --sky2:#172136; --sky3:#131A25; --cloud:#28354F; --orb:#E9E2C6; --ray-o:0; --moon-o:1; --star-o:.9; --deco-o:.24;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.6;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.6;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px;
   -webkit-tap-highlight-color:transparent}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
@@ -50,6 +60,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;gap:12px;padding-block:12px;margin-bottom:8px;border-bottom:1px solid var(--line)}
 .bar h2{flex:1;font-size:24px;min-width:0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 20px;border-radius:999px;border:2px solid var(--line);background:var(--surface);font-weight:500}
+a.btn{text-decoration:none;color:inherit}
 .btn:hover{border-color:var(--muted)}
 .btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .btn.hand{background:var(--hand);color:var(--on-hand);border-color:var(--hand);font-family:var(--f-display);font-size:19px}
@@ -59,20 +70,41 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .back{min-width:52px;padding:0 16px}
 
 /* ---------- home ---------- */
-.hero{display:grid;grid-template-columns:1fr minmax(0,1.15fr);gap:32px;align-items:center;padding-block:28px 8px}
+.home-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:14px}
+.home-top .btn.hand{white-space:nowrap}
+.sign{display:inline-flex;align-items:center;gap:10px;padding:8px 18px 8px 12px;border-radius:16px;background:var(--surface);border:2px solid var(--line);box-shadow:0 3px 0 var(--line)}
+.sign svg{width:36px;height:36px;flex:none;color:var(--ink)}
+.sign b{font-family:var(--f-display);font-weight:400;font-size:22px;white-space:nowrap}
+.hero{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:1fr minmax(0,1.15fr);gap:32px;align-items:center;margin-top:16px;padding:clamp(20px,3.4vw,36px) clamp(16px,3vw,32px) clamp(12px,2vw,20px);border-radius:28px;background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 62%,var(--sky3) 100%)}
+.hero>*{position:relative;z-index:1}
+.sky-deco{position:absolute!important;inset:0;z-index:0!important;pointer-events:none}
+.sky-deco svg{position:absolute}
+.d-orb{width:150px;height:150px;right:-38px;top:-38px}
+.d-cloud{fill:var(--cloud);opacity:.9}
+.d-cloud.c1{width:120px;top:14px;left:34%}
+.d-cloud.c2{width:84px;top:64px;left:52%;opacity:.7}
+.d-cloud.c3{width:100px;bottom:26%;left:-24px;opacity:.6}
+.d-stars{inset:0;width:100%;height:100%;opacity:var(--star-o)}
+@keyframes drift{0%,100%{transform:translateX(0)}50%{transform:translateX(18px)}}
+.d-cloud.c1{animation:drift 26s ease-in-out infinite}
+.d-cloud.c2{animation:drift 34s ease-in-out infinite reverse}
 .hero-copy{display:grid;gap:16px;min-width:0}
 .hero-copy .lede{font-size:20px;color:var(--muted);max-width:30em}
-.friends{display:flex;gap:4px;flex-wrap:wrap}
-.friend{display:grid;justify-items:center;width:84px;font-size:14px;color:var(--muted)}
-.friend .face{width:72px;height:72px}
+.friends{display:grid;grid-template-columns:repeat(4,minmax(0,92px));gap:4px}
+.friend{display:grid;justify-items:center;font-size:14px;color:var(--muted);text-align:center}
+.friend .face{width:min(72px,100%);height:auto;aspect-ratio:1}
 .friend b{font-family:var(--f-display);font-weight:400;color:var(--ink);font-size:17px}
 
 .map{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:34px 0 34px 34px}
 .axis{position:absolute;font-size:14px;color:var(--muted);letter-spacing:.06em;font-weight:500}
-.axis.y{left:0;top:34px;bottom:34px;width:24px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;writing-mode:vertical-rl}
+.axis.y{left:0;top:34px;bottom:34px;width:24px;display:flex;flex-direction:column;justify-content:space-between;align-items:center}
+.axis.y span{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.08em;line-height:1}
 .axis.x{left:34px;right:0;bottom:0;display:flex;justify-content:space-between}
 .axis.t{left:34px;right:0;top:4px;text-align:center}
-.cell{border:none;text-align:left;border-radius:var(--r);padding:16px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;min-height:150px}
+.cell{position:relative;isolation:isolate;overflow:hidden;border:none;text-align:left;border-radius:var(--r);padding:16px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;min-height:150px;box-shadow:0 2px 0 color-mix(in srgb,var(--ink) 8%,transparent)}
+.cell>*{position:relative;z-index:1}
+.cell .zdeco{position:absolute;z-index:0;right:-18px;bottom:-20px;width:112px;height:112px;opacity:var(--deco-o);pointer-events:none}
+.z-sun .zdeco{color:var(--sun)} .z-breeze .zdeco{color:var(--breeze)} .z-storm .zdeco{color:var(--storm)} .z-rain .zdeco{color:var(--rain)}
 .cell .face{width:76px;height:76px;grid-row:span 3}
 .cell .zn{display:flex;align-items:center;gap:6px;font-family:var(--f-display);font-size:22px}
 .cell .wx{width:26px;height:26px}
@@ -85,17 +117,22 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .z-rain{background:var(--rain-t)} .z-rain .zn,.z-rain .zw{color:var(--rain)}
 
 .stations{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:28px}
-.station{display:grid;grid-template-columns:52px 1fr;gap:4px 14px;align-items:start;text-align:left;padding:18px;border-radius:var(--r);background:var(--surface);border:2px solid var(--line);min-height:112px}
-.station:hover{border-color:var(--muted)}
-.station .ico{grid-row:span 2;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--surface-2)}
+.station{--c:var(--accent);--ct:var(--surface-2);display:grid;grid-template-columns:52px 1fr;gap:4px 14px;align-items:start;text-align:left;padding:18px;border-radius:var(--r);background:var(--surface);border:2px solid var(--line);box-shadow:0 3px 0 var(--line);min-height:112px;text-decoration:none;color:inherit;transition:transform .15s ease,border-color .15s ease}
+.station:hover{border-color:var(--c);transform:translateY(-2px)}
+.station:active{transform:translateY(1px)}
+.station .ico{grid-row:span 2;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--ct);color:var(--c)}
+.st-cards{--c:var(--sun);--ct:var(--sun-t)} .st-detective{--c:var(--accent);--ct:var(--accent-t)} .st-match{--c:var(--breeze);--ct:var(--breeze-t)}
+.st-thermo{--c:var(--storm);--ct:var(--storm-t)} .st-calm{--c:var(--rain);--ct:var(--rain-t)} .st-print{--c:var(--muted);--ct:var(--surface-2)}
 .station .ico svg{width:30px;height:30px}
 .station b{font-family:var(--f-display);font-weight:400;font-size:22px}
 .station span{font-size:15px;color:var(--muted);line-height:1.45}
-.station.help{background:var(--hand-t);border-color:transparent}
+.station.help{--c:var(--hand);--ct:var(--surface);background:var(--hand-t);border-color:transparent;box-shadow:none}
 .station.help b{color:var(--hand)}
-.home-help{display:flex;justify-content:flex-end;padding-top:14px}
 .foot{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;font-size:14px;color:var(--muted)}
 .foot a{color:var(--accent)}
+.secret{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pin{font:inherit;font-size:28px;letter-spacing:.4em;text-align:center;padding:10px;border-radius:14px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);width:100%}
+.pin-err{color:var(--storm);text-align:center;min-height:1.6em}
 
 /* ---------- face ---------- */
 .face{display:block}
@@ -111,17 +148,25 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 
 /* ---------- emotion cards ---------- */
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
-.ecard{position:relative;border:none;border-radius:var(--r);padding:14px;min-height:236px;display:grid;text-align:center;align-content:start;justify-items:center;gap:6px}
+/* 卡片兩面疊在同一格，翻面用 3D 轉動；另外在轉到一半時切換 visibility，
+   就算瀏覽器不支援背面隱藏，也不會看到反過來的字 */
+.ecard{border:none;padding:0;background:none;border-radius:var(--r);perspective:900px;display:block;text-align:center;min-height:236px}
+.ecard .inner{display:grid;height:100%;min-height:236px;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.25,.8,.3,1)}
+.ecard.flipped .inner{transform:rotateY(180deg)}
+.ecard .cf,.ecard .cb{grid-area:1/1;position:relative;border-radius:var(--r);padding:14px;display:grid;align-content:start;gap:6px;-webkit-backface-visibility:hidden;backface-visibility:hidden;transition:visibility 0s linear .3s}
+.ecard .cf{justify-items:center;align-content:center}
+.ecard .cb{transform:rotateY(180deg);visibility:hidden;background:var(--surface);border:3px solid var(--zc,var(--line));text-align:left;justify-items:start;font-size:15.5px;line-height:1.5}
+.ecard.flipped .cf{visibility:hidden}
+.ecard.flipped .cb{visibility:visible}
+.ecard .cb.zb-sun{--zc:var(--sun-t)} .ecard .cb.zb-breeze{--zc:var(--breeze-t)} .ecard .cb.zb-storm{--zc:var(--storm-t)} .ecard .cb.zb-rain{--zc:var(--rain-t)}
+.ecard:hover .cf{filter:brightness(.985)}
 .ecard .face{width:112px;height:112px}
 .ecard .w{font-family:var(--f-display);font-size:30px;line-height:1.1}
 .ecard .en{font-size:14px;color:var(--muted)}
 .ecard .tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
-.ecard .back{display:none;text-align:left;justify-items:start;gap:8px;font-size:15.5px;line-height:1.5}
-.ecard .back .dt{font-weight:700;font-size:13px;color:var(--muted);letter-spacing:.04em}
-.ecard .back .dd{margin:0 0 4px}
-.ecard.flipped .front{display:none}
-.ecard.flipped .back{display:grid}
-.ecard .front{display:grid;justify-items:center;gap:6px}
+.ecard .cb .w{font-size:24px;margin-bottom:2px}
+.ecard .cb .dt{font-weight:700;font-size:13px;color:var(--muted);letter-spacing:.04em}
+.ecard .cb .dd{margin:0 0 4px}
 .ecard .flip{position:absolute;right:12px;top:10px;font-size:12px;color:var(--muted)}
 
 /* ---------- panels / games ---------- */
@@ -140,8 +185,18 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .feedback.good{background:var(--breeze-t)}
 .feedback.soft{background:var(--surface-2);border:2px dashed var(--line)}
 .feedback b{font-family:var(--f-display);font-weight:400;font-size:24px}
-.stamps{display:flex;gap:4px;flex-wrap:wrap;align-items:center;font-size:15px;color:var(--muted)}
-.stamp{width:26px;height:26px}
+.book{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:10px 16px;border-radius:18px;background:var(--surface);border:2px dashed var(--line)}
+.book-t{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-display);font-size:18px}
+.book-t svg{width:22px;height:22px;color:var(--accent)}
+.slots{display:flex;flex-wrap:wrap;gap:6px}
+.slot{width:34px;height:34px;border-radius:50%;border:2px dashed var(--line);display:grid;place-items:center}
+.slot.on{border:2px solid currentColor}
+.slot .wx{width:20px;height:20px}
+.slot.z-sun{color:var(--sun)} .slot.z-breeze{color:var(--breeze)} .slot.z-storm{color:var(--storm)} .slot.z-rain{color:var(--rain)}
+@keyframes pop{0%{transform:scale(.3) rotate(-25deg)}70%{transform:scale(1.18)}100%{transform:none}}
+.slot.pop{animation:pop .5s ease-out}
+.book-done{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-size:22px}
+.book-done .wx{width:30px;height:30px;color:var(--sun);flex:none}
 .qface{display:flex;justify-content:center}
 .qface .face{width:180px;height:180px}
 
@@ -158,14 +213,22 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .nudge{animation:nudge .3s ease 2}
 
 /* thermometer */
-.thermo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:start}
-.tube{display:grid;gap:5px;padding:10px;border-radius:999px;background:var(--surface-2);border:2px solid var(--line);width:104px}
-.seg{height:44px;border-radius:12px;border:none;font-weight:700;font-size:17px;background:var(--line);color:var(--ink)}
-.seg[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:1px}
-.bulb{width:84px;height:84px;border-radius:50%;margin:4px auto 0;display:grid;place-items:center;font-family:var(--f-display);font-size:30px;background:var(--surface);border:2px solid var(--line)}
+.thermo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start}
+/* 溫度計：左邊是玻璃管和液柱，右邊是 10 到 1 的按鈕；液柱用 clip-path 從下往上露出，顏色從雨天藍、微風綠到晴天黃 */
+.meter{display:grid;grid-template-columns:64px auto;grid-template-rows:auto auto;column-gap:14px}
+.tube{grid-column:1;grid-row:1;justify-self:center;position:relative;width:36px;border:3px solid var(--line);border-bottom:none;border-radius:999px 999px 0 0;background:var(--surface-2);overflow:hidden}
+.liquid{position:absolute;inset:4px 4px 0;border-radius:999px 999px 0 0;background:linear-gradient(to top,var(--rain),var(--breeze) 50%,var(--sun));clip-path:inset(calc(100% - var(--lv,0) * 10%) 0 0 0 round 999px 999px 0 0);transition:clip-path .8s cubic-bezier(.3,.8,.3,1)}
+.tube::after{content:"";position:absolute;inset:8px auto 8px 9px;width:5px;border-radius:9px;background:#fff;opacity:.35}
+.bulb{grid-column:1;grid-row:2;width:64px;height:64px;margin-top:-4px;border-radius:50%;display:grid;place-items:center;background:var(--bulb,var(--line));border:3px solid var(--line);transition:background-color .6s}
+.bulb span{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--surface);font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums}
+.ticks{grid-column:2;grid-row:1;display:grid;gap:4px}
+.tick{min-height:44px;display:flex;align-items:center;gap:10px;padding:0 16px 0 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);text-align:left;font-size:16px}
+.tick b{width:1.6em;text-align:right;font-size:18px;font-variant-numeric:tabular-nums}
+.tick:hover{border-color:var(--muted)}
+.tick[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .tlabel{font-family:var(--f-display);font-size:30px}
-.steps{display:flex;gap:6px;font-size:14px;color:var(--muted)}
-.steps span{padding:4px 12px;border-radius:999px;background:var(--surface-2)}
+.steps{display:flex;flex-wrap:wrap;gap:6px;font-size:14px;color:var(--muted)}
+.steps span{padding:4px 12px;border-radius:999px;background:var(--surface-2);white-space:nowrap}
 .steps span.on{background:var(--ink);color:var(--bg)}
 .energy{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .energy button{min-height:96px;border-radius:18px;border:2px solid var(--line);background:var(--surface-2);font-size:19px;padding:14px;display:grid;gap:4px}
@@ -187,14 +250,17 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .dots i.on{background:var(--breeze)}
 .sense{font-family:var(--f-display);font-size:clamp(26px,4vw,34px);line-height:1.4;text-align:center}
 .sense .n{font-size:min(28vw,120px);line-height:1;color:var(--breeze);display:block}
-@media (prefers-reduced-motion:reduce){.orb,.orb.in,.orb.out{transition:none;transform:none}.nudge{animation:none}}
+@media (prefers-reduced-motion:reduce){.orb,.orb.in,.orb.out{transition:none;transform:none}.nudge{animation:none}
+  *,*::before,*::after{animation:none!important;transition:none!important}}
 
 /* help */
 .help-hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:center;background:var(--hand-t);border-radius:var(--r);padding:clamp(18px,3vw,30px)}
 .help-hero .face{width:120px;height:120px}
 .help-hero p{font-family:var(--f-display);font-size:clamp(22px,3.2vw,30px);line-height:1.45}
 .people{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.person{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:6px}
+.person{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-content:start}
+.person .pi{grid-row:span 2;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--hand-t);color:var(--hand)}
+.person .pi svg{width:28px;height:28px}
 .person b{font-family:var(--f-display);font-weight:400;font-size:22px}
 .lines{display:grid;gap:8px}
 .lines p{background:var(--surface-2);border-radius:14px;padding:12px 16px;font-size:19px}
@@ -237,10 +303,11 @@ th{background:var(--surface-2);font-weight:700;font-size:14px}
 .pc .pw{font-family:var(--f-display);font-size:24pt;line-height:1.1}
 .pc .pz{font-size:9pt;display:flex;gap:2mm;justify-content:center;flex-wrap:wrap}
 .pc .pe{font-size:9pt;color:#5b6573}
-.pc.b{justify-items:start;text-align:left;font-size:10pt;line-height:1.45;align-content:center}
-.pc.b .dt{font-weight:700;font-size:8.5pt;color:#5b6573}
-.pc.b .dd{margin:0 0 2mm}
-.pc.b .pw{font-size:16pt}
+.pc.b{justify-items:start;text-align:left;font-size:11.5pt;line-height:1.45;align-content:center;gap:1mm;padding-top:9mm;background:linear-gradient(var(--band),var(--band)) top/100% 5mm no-repeat}
+.pc.b .dt{font-weight:700;font-size:9pt;color:#5b6573}
+.pc.b .dd{margin:0 0 1.5mm}
+.pc.b .pw{font-size:18pt;margin-bottom:1mm}
+.bb-sun{--band:#F6D9A6}.bb-breeze{--band:#B9E2D2}.bb-storm{--band:#F1C2B8}.bb-rain{--band:#C4CEEE}
 .pc.s{align-content:center;font-family:var(--f-display);font-size:15pt;line-height:1.5}
 .pc.s .sn{font-family:var(--f-body);font-size:8pt;color:#5b6573}
 .pt-sun{background:#FCEED6}.pt-breeze{background:#DCF0E8}.pt-storm{background:#F8E0DA}.pt-rain{background:#E1E6F6}
@@ -252,8 +319,10 @@ th{background:var(--surface-2);font-weight:700;font-size:14px}
 .ws .quad div{border-radius:3mm;padding:3mm;min-height:32mm;font-size:11pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .ws .lineq{border-bottom:1.2px solid var(--paper-ink);height:12mm}
 .wallet{display:grid;grid-template-columns:repeat(2,90mm);grid-auto-rows:60mm;justify-content:center;gap:0}
-.wallet .pc{align-content:start;justify-items:start;text-align:left;font-size:10.5pt;line-height:1.5}
-.wallet .pc .face{width:16mm;height:16mm}
+.wallet .pc{align-content:start;justify-items:stretch;text-align:left;font-size:10.5pt;line-height:1.5;gap:1.5mm}
+.wallet .wh{display:flex;align-items:center;gap:3mm;font-size:12.5pt}
+.wallet .pc .face{width:14mm;height:14mm;flex:none}
+.wallet .say2{font-size:9.5pt}
 .wallet .fill{border-bottom:1px solid var(--paper-ink);display:block;height:7mm;width:100%}
 @page{size:A4;margin:0}
 @media print{
@@ -280,17 +349,39 @@ th{background:var(--surface-2);font-weight:700;font-size:14px}
   .cell .face{width:56px;height:56px;grid-row:auto}
   .cell .zd{display:none}
   .thermo{grid-template-columns:1fr;justify-items:center}
-  .bar .btn.hand span.long{display:none}
+  .bar .back span.small{display:none}
+  .bar h2{font-size:21px}
+  .bar .btn.hand{padding:0 14px;font-size:17px;white-space:nowrap}
+  .steps span{padding:3px 10px;font-size:13px}
+  .cards{gap:10px}
+  .ecard .face{width:92px;height:92px}
+  .ecard .w{font-size:27px}
+  .ecard .cf,.ecard .cb{padding:12px}
+  .ecard .cb{font-size:14px;line-height:1.45}
+  .ecard .cb .dt{font-size:12px}
+  .ecard .cb .w{font-size:22px}
   .help-hero{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .sign{padding:6px 12px 6px 8px;gap:6px}
+  .sign svg{width:28px;height:28px}
+  .sign b{font-size:19px}
+  .home-top .btn.hand{padding:0 14px;font-size:17px}
+  .cell .zdeco{width:84px;height:84px;right:-14px;bottom:-16px}
+  .d-orb{width:120px;height:120px;right:-34px;top:-34px}
 }
 </style>
+</head>
+<body>
 
 <div class="wrap" id="app">
 
   <!-- ================= 首頁 ================= -->
   <section class="view" id="v-home">
-    <div class="home-help noprint"><button class="btn hand" data-act="help"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.3-9A5.4 5.4 0 0 1 12 6a5.4 5.4 0 0 1 9.3 6c-2.3 4.5-9.3 9-9.3 9z" fill="currentColor"/></svg>我需要幫忙</button></div>
+    <header class="home-top noprint">
+      <div class="sign"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 4v25M3 29h7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M7 6L12 6.75V17.25L7 18Z M17 7.5L22 8.25V15.75L17 16.5Z" fill="var(--storm)"/><path d="M12 6.75L17 7.5V16.5L12 17.25Z M22 8.25L27 9V15L22 15.75Z" fill="var(--surface)"/><path d="M7 6L27 9V15L7 18Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><b>心情天氣站</b></div>
+      <button class="btn hand" data-act="help"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-9.3-9A5.4 5.4 0 0 1 12 6a5.4 5.4 0 0 1 9.3 6c-2.3 4.5-9.3 9-9.3 9z" fill="currentColor"/></svg>我需要幫忙</button>
+    </header>
     <div class="hero">
+      <div class="sky-deco" aria-hidden="true"><svg class="d-stars" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><g fill="#F3EBDD"><circle cx="40" cy="30" r="1.8"/><circle cx="110" cy="70" r="1.3"/><circle cx="170" cy="22" r="1.6"/><circle cx="230" cy="60" r="1.2"/><circle cx="300" cy="18" r="1.5"/><circle cx="20" cy="120" r="1.2"/><circle cx="140" cy="140" r="1.4"/><circle cx="260" cy="110" r="1.3"/><circle cx="360" cy="90" r="1.6"/><circle cx="85" cy="190" r="1.2"/><circle cx="330" cy="170" r="1.3"/></g></svg><svg class="d-orb" viewBox="0 0 150 150"><g stroke="var(--orb)" stroke-width="7" stroke-linecap="round" style="opacity:var(--ray-o)"><path d="M125.0 75.0L139.0 75.0"/><path d="M118.3 100.0L130.4 107.0"/><path d="M100.0 118.3L107.0 130.4"/><path d="M75.0 125.0L75.0 139.0"/><path d="M50.0 118.3L43.0 130.4"/><path d="M31.7 100.0L19.6 107.0"/><path d="M25.0 75.0L11.0 75.0"/><path d="M31.7 50.0L19.6 43.0"/><path d="M50.0 31.7L43.0 19.6"/><path d="M75.0 25.0L75.0 11.0"/><path d="M100.0 31.7L107.0 19.6"/><path d="M118.3 50.0L130.4 43.0"/></g><circle cx="75" cy="75" r="36" style="fill:var(--orb)"/><circle cx="58" cy="66" r="31" style="fill:var(--sky1);opacity:var(--moon-o)"/></svg><svg class="d-cloud c1" viewBox="0 0 120 60"><path d="M22 52C8 52 6 34 20 32C20 18 40 12 49 24C55 9 80 10 83 27C97 23 109 37 100 46C106 52 102 52 96 52Z"/></svg><svg class="d-cloud c2" viewBox="0 0 120 60"><path d="M22 52C8 52 6 34 20 32C20 18 40 12 49 24C55 9 80 10 83 27C97 23 109 37 100 46C106 52 102 52 96 52Z"/></svg><svg class="d-cloud c3" viewBox="0 0 120 60"><path d="M22 52C8 52 6 34 20 32C20 18 40 12 49 24C55 9 80 10 83 27C97 23 109 37 100 46C106 52 102 52 96 52Z"/></svg></div>
       <div class="hero-copy">
         <h1>今天的心情，<br>是什麼天氣？</h1>
         <p class="lede">心情就像天氣，會來也會走，沒有好壞對錯。先問自己兩個問題：<b>舒不舒服？有沒有精神？</b>就找得到它在哪一區。</p>
@@ -300,8 +391,8 @@ th{background:var(--surface-2);font-weight:700;font-size:14px}
     </div>
     <div class="stations" id="stations"></div>
     <div class="foot">
-      <span>心情天氣站　草案 v0.1（2026-11-05）· 內容待輔導老師審定 · 不登入、不上傳、不留紀錄</span>
-      <a href="#teacher">老師設定與說明 →</a>
+      <span class="secret" id="secret">心情天氣站</span>
+      <span>內容待輔導老師審定 · 不登入、不上傳、不留紀錄</span>
     </div>
   </section>
 
@@ -319,115 +410,22 @@ th{background:var(--surface-2);font-weight:700;font-size:14px}
 <button class="showteacher noprint" id="showteacher" hidden aria-label="點一下關閉"></button>
 
 <script>
-/* =====================================================================
-   內容資料區（輔導老師要改文字，只改這一段；之後放 GitHub Pages 會拆成 data.js）
-   ※ 全部為 Claude 草擬的原創文字，狀態：草案，待輔導老師逐項審定。
-   ===================================================================== */
-const DATA = {
-  version: '草案 v0.1（2026-11-05）',
-  /* 情緒架構：採「情緒象限」（舒服/不舒服 × 有精神/沒力氣），用天氣命名。 */
-  zones: {
-    sun:    { name:'晴天區', pleasant:true,  energy:'high', desc:'有精神，心裡也舒服。',
-              tips:['把好消息分享給一個人。','把這個感覺畫下來或寫下來。','很興奮時也要注意安全，慢慢來。'] },
-    breeze: { name:'微風區', pleasant:true,  energy:'low',  desc:'舒服，安安靜靜、慢慢的。',
-              tips:['慢慢享受這一刻。','跟幫助你的人說聲謝謝。','記住這種感覺，緊張時可以回想。'] },
-    storm:  { name:'雷雨區', pleasant:false, energy:'high', desc:'身體裡有很多力氣在衝，但不舒服。',
-              tips:['先停下來，慢慢呼吸三次。','說出來：「我覺得＿＿，因為＿＿。」','去冷靜角待一下。','請老師或大人幫忙。'] },
-    rain:   { name:'雨天區', pleasant:false, energy:'low',  desc:'沒什麼力氣，心裡也不舒服。',
-              tips:['找信任的人聊一聊。','給自己一個抱抱，或喝口溫水。','做一件小小的、喜歡的事。','累了就休息一下。'] }
-  },
-  /* 動物角色：每隻動物都會有各種心情（不綁定某一區），避免「某動物＝某情緒」的標籤。名字為暫定，可讓學生命名。 */
-  animals: {
-    squirrel: { name:'跳跳', kind:'松鼠',     head:'#C68748', inner:'#F2D2AE', mask:'#F7E4CB', dark:'#8E5B2B', ears:'tuft' },
-    turtle:   { name:'慢慢', kind:'烏龜',     head:'#86B884', inner:'#CFE6C6', mask:'#E7F3DD', dark:'#5E8F5B', ears:'none', shape:'oval', deco:'spots' },
-    pangolin: { name:'阿甲', kind:'穿山甲',   head:'#B9946D', inner:'#E8CFB3', mask:'#F2E3D0', dark:'#86664A', ears:'small', deco:'scales' },
-    bear:     { name:'圓圓', kind:'臺灣黑熊', head:'#4E4A55', inner:'#8E8697', mask:'#EADDC9', dark:'#2E2B33', ears:'round', deco:'moon' }
-  },
-  /* 情緒詞：z=所屬區（可兩區）；x=表情參數；src=來源/審稿狀態 */
-  words: [
-    { w:'開心', z:['sun'], en:'happy', say:'心裡亮亮的，很想笑。', body:'嘴角往上，身體輕輕的。', x:{e:'h',m:1,mo:.35,x:['blush']} },
-    { w:'興奮', z:['sun'], en:'excited', say:'非常開心又很有精神，好像坐不住。', body:'心跳變快，想跳起來或大叫。', x:{b:-.1,r:.6,e:'w',m:1,mo:.7,x:['sparkle']} },
-    { w:'驕傲', z:['sun'], en:'proud', say:'自己努力做到一件事，覺得自己很棒。', body:'抬頭挺胸，想讓別人看看。', x:{b:.15,e:'c',m:.8,x:['sparkle']} },
-    { w:'期待', z:['sun'], en:'looking forward', say:'知道有好事要發生，一直在等。', body:'一直想著那件事，有點坐不住。', x:{r:.4,e:'w',m:.6,mo:.15} },
-    { w:'好奇', z:['sun'], en:'curious', say:'很想知道、很想看看是怎麼回事。', body:'眼睛睜大，身體往前靠。', x:{r:.7,e:'w',mo:.35,mt:'o'} },
-    { w:'驚訝', z:['sun','storm'], en:'surprised', say:'發生沒想到的事，嚇了一跳。驚喜或驚嚇都有可能。', body:'眼睛張大、嘴巴張開。', x:{r:1,e:'w',mo:.8,mt:'o'} },
-    { w:'感謝', z:['sun','breeze'], en:'thankful', say:'別人幫了你，心裡想跟他說謝謝。', body:'胸口暖暖的。', x:{e:'h',m:.6,x:['blush','heart']} },
-    { w:'平靜', z:['breeze'], en:'calm', say:'心裡像沒有風浪的水面，安安穩穩。', body:'呼吸慢慢的，肩膀放鬆。', x:{e:'c',m:.3} },
-    { w:'放鬆', z:['breeze'], en:'relaxed', say:'不用趕、不用擔心，可以慢慢來。', body:'身體軟軟的，很舒服。', x:{e:'c',m:.45,x:['breeze']} },
-    { w:'滿足', z:['breeze'], en:'content', say:'覺得現在這樣剛剛好。', body:'肚子飽飽，心裡也飽飽的。', x:{e:'h',m:.55,x:['blush']} },
-    { w:'安心', z:['breeze'], en:'safe', say:'知道自己是安全的，有人在旁邊。', body:'原本緊緊的地方鬆開了。', x:{e:'c',m:.5} },
-    { w:'溫暖', z:['breeze','sun'], en:'cared for', say:'被別人關心、照顧，心裡熱熱的。', body:'胸口熱熱的，想靠近對方。', x:{e:'h',m:.5,x:['heart']} },
-    { w:'生氣', z:['storm'], en:'angry', say:'覺得不公平或被冒犯，心裡很不舒服。', body:'臉變熱、拳頭握緊、說話變大聲。', x:{b:1,e:'o',m:-.6,x:['vein']} },
-    { w:'煩躁', z:['storm'], en:'annoyed', say:'一直有小事不順，心裡毛毛的。', body:'坐不住、想嘆氣。', x:{b:.6,e:'half',m:-.3,x:['scribble']} },
-    { w:'緊張', z:['storm'], en:'nervous', say:'重要的事快開始了，心裡七上八下。', body:'心跳快、手心流汗、想上廁所。', x:{b:-.5,r:.3,e:'w',mt:'zig',x:['sweat']} },
-    { w:'害怕', z:['storm'], en:'scared', say:'覺得有危險，想逃走或躲起來。', body:'身體縮起來、發抖、心跳很快。', x:{b:-1,r:.4,e:'w',m:-.5,mo:.45} },
-    { w:'擔心', z:['storm','rain'], en:'worried', say:'怕不好的事會發生，一直想著它。', body:'肚子怪怪的、睡不太著。', x:{b:-.8,e:'o',m:-.3,x:['sweat']} },
-    { w:'嫉妒', z:['storm','rain'], en:'jealous', say:'別人有你很想要的東西，心裡酸酸的。', body:'胸口悶悶的，有點不想看。', x:{b:.4,e:'s',m:-.3} },
-    { w:'尷尬', z:['storm'], en:'embarrassed', say:'出了小狀況被別人看到，好想找地洞鑽。', body:'臉紅、想笑又笑不出來。', x:{b:-.4,e:'o',mt:'zig',x:['blush','sweat']} },
-    { w:'害羞', z:['storm','rain'], en:'shy', say:'在別人面前有點不好意思。', body:'臉紅紅的、說話變小聲。', x:{b:-.3,e:'c',m:.15,x:['blush']} },
-    { w:'委屈', z:['storm','rain'], en:'wronged', say:'被誤會或被不公平對待，又生氣又難過。', body:'鼻子酸酸，想哭又說不出口。', x:{b:-.7,e:'o',m:-.55,x:['tear']} },
-    { w:'難過', z:['rain'], en:'sad', say:'失去或沒得到重要的東西，心裡很重。', body:'想哭、沒力氣、不想說話。', x:{b:-.8,e:'o',m:-.7,x:['tear']} },
-    { w:'失望', z:['rain'], en:'disappointed', say:'期待的事沒有發生，心裡空空的。', body:'肩膀垂下來，嘆一口氣。', x:{b:-.4,e:'half',m:-.5} },
-    { w:'孤單', z:['rain'], en:'lonely', say:'覺得身邊沒有人陪、沒有人懂你。', body:'心裡空空的、冷冷的。', x:{b:-.6,e:'half',m:-.4}, help:true },
-    { w:'疲倦', z:['rain'], en:'tired', say:'身體或腦袋用了很多力氣，需要休息。', body:'眼皮重、打哈欠、不想動。', x:{e:'half',m:-.1,x:['zz']} },
-    { w:'無聊', z:['rain'], en:'bored', say:'沒有想做的事，時間過得好慢。', body:'東看西看、提不起勁。', x:{e:'half'} }
-  ],
-  /* 校園情境卡：z=多數人會落在的區；w=可能的情緒詞；tip=因應方法 */
-  scenes: [
-    { t:'下課時，好朋友跑來邀你一起玩鬼抓人。', z:['sun'], w:['開心','興奮'], tip:'說出來：「謝謝你找我！」跑跑跳跳時記得看路。' },
-    { t:'明天就要校外教學了。', z:['sun'], w:['期待','興奮'], tip:'先把要帶的東西準備好，早點睡，明天才有精神。' },
-    { t:'練習好久的直笛曲，今天終於全部吹對。', z:['sun'], w:['驕傲','開心'], tip:'跟自己說「我做到了」，也可以吹給家人聽。' },
-    { t:'抽獎時，竟然抽到你最想要的獎品。', z:['sun'], w:['驚訝','開心'], tip:'深呼吸一下，慢慢享受這個驚喜。' },
-    { t:'午休後，坐在樹下看雲慢慢飄。', z:['breeze'], w:['放鬆','平靜'], tip:'記住這種舒服的感覺，下次緊張時可以回想。' },
-    { t:'考完試回到家，吃到熱熱的晚餐。', z:['breeze'], w:['滿足','安心'], tip:'跟煮飯的人說一聲謝謝。' },
-    { t:'你跌倒了，同學扶你去健康中心。', z:['breeze','sun'], w:['溫暖','感謝'], tip:'找機會跟同學說謝謝，下次你也可以這樣幫別人。' },
-    { t:'排隊時，有人突然插到你前面。', z:['storm'], w:['生氣','煩躁'], tip:'先停下來呼吸三次，再用說的：「請排到後面，謝謝。」' },
-    { t:'等一下就要上台報告。', z:['storm'], w:['緊張','擔心'], tip:'慢慢吸氣、慢慢吐氣，先在心裡練習第一句話。' },
-    { t:'打雷了，教室突然停電變暗。', z:['storm'], w:['害怕','驚訝'], tip:'待在老師和同學身邊，聽老師的指示。' },
-    { t:'同學說你拿了他的橡皮擦，可是你沒有。', z:['storm','rain'], w:['委屈','生氣'], tip:'先冷靜，再把事情說清楚；說不清楚時請老師幫忙。' },
-    { t:'上課回答錯了，有同學笑出聲。', z:['storm','rain'], w:['尷尬','難過'], tip:'答錯是學習的一部分。跟自己說：「沒關係，我在學。」' },
-    { t:'好朋友這個禮拜都跟別人玩。', z:['rain','storm'], w:['孤單','嫉妒','難過'], tip:'可以主動問：「下課可以一起玩嗎？」也可以跟老師聊聊。' },
-    { t:'期待好久的運動會，因為下大雨取消了。', z:['rain'], w:['失望','難過'], tip:'失望可以說出來，也可以想想還有什麼事值得期待。' },
-    { t:'昨晚沒睡好，第一節課一直打哈欠。', z:['rain'], w:['疲倦'], tip:'下課喝點水、動一動身體，今晚早點睡。' },
-    { t:'下雨天不能去操場，只能待在教室。', z:['rain'], w:['無聊','失望'], tip:'找一件教室裡能做的小事，例如畫畫、下棋或看書。' },
-    { t:'轉學來的新同學第一次跟你說話。', z:['storm','sun'], w:['害羞','好奇'], tip:'笑一笑，問他一個問題：「你喜歡玩什麼？」' },
-    { t:'家裡的小狗生病了，要住院幾天。', z:['rain','storm'], w:['擔心','難過'], tip:'把擔心告訴家人，一起想想能為小狗做什麼。' }
-  ],
-  /* 需要幫助時的流程（草案，必做；觸發條件與文字請輔導老師修正） */
-  help: {
-    triggerLevel: 2,              // 心情溫度計選到這個數字以下就提示
-    triggerWords: ['孤單'],        // 在心情溫度計「說說自己」選到這些詞就提示（遊戲中描述別人時不提示）
-    thanks: '謝謝你告訴我。這件事可以跟老師聊聊，你不用一個人承受。',
-    roomLine: '輔導老師就在旁邊。你可以直接跟老師說，或按「給老師看」，讓老師知道你想聊聊。',
-    classLine: '你可以去找下面這些大人。選一個你最信任的就好。',
-    people: [
-      { who:'導師', how:'下課時走到老師身邊，說：「老師，我想跟你說一件事。」' },
-      { who:'輔導室的老師', how:'到輔導室找老師，或請導師陪你去。' },
-      { who:'家裡信任的大人', how:'回家後找爸爸、媽媽、阿公阿嬤或照顧你的人，說：「我有事想跟你說。」' },
-      { who:'其他信任的大人', how:'健康中心的護理師、科任老師，或學校裡你認識的老師。' }
-    ],
-    sayIt: ['我最近心情不太好。','有一件事讓我很難過，我想跟你說。','我不知道怎麼說，可以先陪我一下嗎？'],
-    hotlines: [
-      { name:'安心專線', num:'1925', note:'24 小時，免付費' },
-      { name:'保護專線', num:'113', note:'24 小時，被傷害或看到別人被傷害時' }
-    ]
-  },
-  calm: {
-    senses: [
-      { n:5, t:'找出 5 樣你看得到的東西' },
-      { n:4, t:'摸一摸 4 樣東西，感覺它們' },
-      { n:3, t:'聽聽看，找出 3 種聲音' },
-      { n:2, t:'聞一聞，找出 2 種味道' },
-      { n:1, t:'說出 1 件你喜歡自己的地方' }
-    ]
-  }
-};
-/* ===================== 內容資料區結束 ===================== */
-
+/* data.js 如果打錯字，記下錯誤的行號，方便老師修正 */
+window.DATA_ERR=null;
+addEventListener('error',e=>{ if(e.filename && /data\.js/.test(e.filename)) window.DATA_ERR={line:e.lineno,msg:e.message}; });
+</script>
+<script src="data.js"></script>
+<script>
+let DATA_OK=false; try{ DATA_OK = typeof DATA!=='undefined' && Array.isArray(DATA.words); }catch(e){ /* data.js 執行到一半出錯時，DATA 會無法讀取 */ }
+if(!DATA_OK){
+  const E=window.DATA_ERR;
+  document.getElementById('app').innerHTML=`<div class="panel stack" style="margin-top:24px"><h2>內容檔案讀不到</h2><p>找不到 <code>data.js</code>，或 data.js 裡有打錯的地方${E?`（大約在第 <b>${E.line}</b> 行）`:''}。</p><p class="muted">常見原因：少了逗號、引號沒有成對、括號沒有關好。檢查那一行附近，或改回上一版就可以了。</p></div>`;
+  throw new Error('心情天氣站：data.js 沒有載入');
+}
 const ZK = ['sun','breeze','storm','rain'];
 const AK = Object.keys(DATA.animals);
 const INK = '#2B2730';
-DATA.words.forEach((w,i)=>{ w.a = AK[i % AK.length]; });
+DATA.words.forEach((w,i)=>{ if(!DATA.animals[w.a]) w.a = AK[i % AK.length]; }); /* data.js 可以用 a: 指定動物，沒寫就輪流 */
 const WORD = Object.fromEntries(DATA.words.map(w=>[w.w,w]));
 
 /* ---------- settings (per device) ---------- */
@@ -451,70 +449,120 @@ const WX = {
   rain:`<svg class="wx" viewBox="0 0 40 40" aria-hidden="true"><path d="M11 23a7 7 0 0 1 1-14 9 9 0 0 1 17 3 5.5 5.5 0 0 1 0 11z" fill="currentColor"/><path d="M14 28l-2 5M21 28l-2 5M28 28l-2 5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`
 };
 const ztag = z=>`<span class="zt ${z}">${WX[z]}${DATA.zones[z].name}</span>`;
+/* 首頁四區的大天氣圖（淡淡的背景，不影響閱讀） */
+const ZDECO = {
+  sun:`<svg class="zdeco" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="20" fill="currentColor"/><g stroke="currentColor" stroke-width="6" stroke-linecap="round"><path d="M50 12v9M50 79v9M12 50h9M79 50h9M23 23l6 6M71 71l6 6M23 77l6-6M71 29l6-6"/></g></svg>`,
+  breeze:`<svg class="zdeco" viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"><path d="M22 34h44a10 10 0 1 0-10-10"/><path d="M10 54h66a10 10 0 1 1-10 10"/><path d="M30 74h24"/></g></svg>`,
+  storm:`<svg class="zdeco" viewBox="0 0 100 100" aria-hidden="true"><path d="M30 56a15 15 0 0 1 3-30 20 20 0 0 1 38 6 12 12 0 0 1 1 24z" fill="currentColor"/><path d="M54 60l-9 14h11l-7 14" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  rain:`<svg class="zdeco" viewBox="0 0 100 100" aria-hidden="true"><path d="M30 50a15 15 0 0 1 3-30 20 20 0 0 1 38 6 12 12 0 0 1 1 24z" fill="currentColor"/><g stroke="currentColor" stroke-width="6" stroke-linecap="round"><path d="M38 62l-4 10M54 62l-4 10M70 62l-4 10M46 80l-4 10M62 80l-4 10"/></g></svg>`
+};
 
-/* ---------- programmatic faces ---------- */
-function ears(a){
-  if(a.ears==='tuft') return `<path d="M24 48 L33 8 L52 36Z" fill="${a.head}"/><path d="M96 48 L87 8 L68 36Z" fill="${a.head}"/><path d="M31 39 L34 19 L45 34Z" fill="${a.inner}"/><path d="M89 39 L86 19 L75 34Z" fill="${a.inner}"/>`;
-  if(a.ears==='round') return `<circle cx="28" cy="30" r="14" fill="${a.head}"/><circle cx="92" cy="30" r="14" fill="${a.head}"/><circle cx="28" cy="30" r="7" fill="${a.inner}"/><circle cx="92" cy="30" r="7" fill="${a.inner}"/>`;
-  if(a.ears==='small') return `<ellipse cx="20" cy="60" rx="7" ry="9" fill="${a.inner}" stroke="${a.head}" stroke-width="3"/><ellipse cx="100" cy="60" rx="7" ry="9" fill="${a.inner}" stroke="${a.head}" stroke-width="3"/>`;
-  return '';
-}
-function deco(a){
-  if(a.deco==='scales') return `<g fill="none" stroke="${a.dark}" stroke-width="3" stroke-linecap="round"><path d="M28 46 Q36 34 44 44 Q52 32 60 42 Q68 32 76 44 Q84 34 92 46"/><path d="M38 33 Q46 23 54 31 Q60 21 66 31 Q74 23 82 33"/></g>`;
-  if(a.deco==='spots') return `<g fill="${a.dark}" opacity=".5"><circle cx="45" cy="37" r="5"/><circle cx="61" cy="30" r="6"/><circle cx="77" cy="38" r="4.5"/></g>`;
-  if(a.deco==='moon') return `<path d="M44 104 Q60 114 76 104" stroke="#F1EAD8" stroke-width="4" fill="none" stroke-linecap="round"/>`;
-  return '';
-}
-function eye(cx,cy,t){
-  const st = `stroke="${INK}" stroke-width="3" stroke-linecap="round" fill="none"`;
+/* ---------- programmatic faces ----------
+   四隻動物各有自己的「一眼認得出來」的特徵：
+   松鼠＝大蓬尾巴＋耳尖簇毛＋鼓鼓的臉頰；烏龜＝背後的龜殼；
+   穿山甲＝頭頂和身上的鱗片＋長鼻吻；臺灣黑熊＝胸前白色 V 字＋淺色口鼻。
+   表情（眉、眼、嘴）座標四隻共用，所以每隻都能做出全部表情。 */
+const SPECIES = {
+  squirrel(a){
+    return {
+      back:`<path d="M40 104 C14 106 0 86 4 62 C7 44 0 34 6 22 C13 7 34 3 42 15 C48 25 40 35 31 31 C27 46 30 70 40 104Z" fill="${a.fur}" stroke="${a.dark}" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M30 96 C14 92 10 76 13 60 C15 48 11 38 15 28 C19 19 29 16 34 21" fill="none" stroke="${a.light}" stroke-width="5" stroke-linecap="round" opacity=".75"/>`,
+      ears:`<path d="M33 46 L35 14 L55 33Z" fill="${a.fur}" stroke="${a.dark}" stroke-width="2.5" stroke-linejoin="round"/><path d="M87 46 L85 14 L65 33Z" fill="${a.fur}" stroke="${a.dark}" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M38 37 L38.5 22 L48 32Z" fill="${a.inner}"/><path d="M82 37 L81.5 22 L72 32Z" fill="${a.inner}"/>
+        <path d="M35 15 l-3 -8 M35 15 l2 -9 M35 15 l5 -6" stroke="${a.dark}" stroke-width="2.6" stroke-linecap="round"/><path d="M85 15 l3 -8 M85 15 l-2 -9 M85 15 l-5 -6" stroke="${a.dark}" stroke-width="2.6" stroke-linecap="round"/>`,
+      head:`<circle cx="60" cy="65" r="39" fill="${a.fur}" stroke="${a.dark}" stroke-width="2.5"/>`,
+      front:`<g fill="${a.light}"><circle cx="41" cy="85" r="13"/><circle cx="79" cy="85" r="13"/><ellipse cx="60" cy="89" rx="18" ry="13"/></g>
+        <path d="M55 78.5 Q60 76.5 65 78.5 Q63 83 60 83.5 Q57 83 55 78.5Z" fill="${a.dark}"/>`
+    };
+  },
+  turtle(a){
+    return {
+      back:`<ellipse cx="60" cy="108" rx="57" ry="27" fill="${a.shell}" stroke="${a.shellD}" stroke-width="2.5"/>
+        <path d="M5 106 Q60 92 115 106" fill="none" stroke="${a.shellL}" stroke-width="4" opacity=".8"/>
+        <g fill="none" stroke="${a.shellD}" stroke-width="2.4" stroke-linejoin="round"><path d="M10 98 L24 104 L22 120"/><path d="M110 98 L96 104 L98 120"/><path d="M24 104 L40 101"/><path d="M96 104 L80 101"/></g>`,
+      ears:'',
+      head:`<ellipse cx="60" cy="63" rx="37" ry="39" fill="${a.fur}" stroke="${a.dark}" stroke-width="2.5"/>
+        <g fill="${a.dark}" opacity=".45"><circle cx="46" cy="36" r="4.5"/><circle cx="60" cy="31" r="5"/><circle cx="74" cy="36" r="4.5"/><circle cx="53" cy="44" r="3"/><circle cx="67" cy="44" r="3"/></g>`,
+      front:`<ellipse cx="60" cy="88" rx="27" ry="13.5" fill="${a.light}"/>
+        <circle cx="56.5" cy="79" r="1.7" fill="${a.dark}"/><circle cx="63.5" cy="79" r="1.7" fill="${a.dark}"/>`
+    };
+  },
+  pangolin(a){
+    /* 松果狀的大鱗片從頭頂一層層往下疊，兩頰外緣也有鱗片；中間露出倒水滴形的臉和鼻吻 */
+    const sc=(x,y)=>`<path d="M${x-8} ${y-5} Q${x-8} ${y+3} ${x} ${y+9} Q${x+8} ${y+3} ${x+8} ${y-5} Q${x} ${y-10} ${x-8} ${y-5}Z" fill="${a.scale}" stroke="${a.dark}" stroke-width="1.9" stroke-linejoin="round"/><path d="M${x-4} ${y+1} Q${x} ${y+5.5} ${x+4} ${y+1}" fill="none" stroke="${a.scaleL}" stroke-width="1.6" stroke-linecap="round"/>`;
+    const rows=[[22,[53,67]],[30,[39,53,67,81]],[38,[28,46,60,74,92]],[47,[21,35,85,99]],[57,[18,102]],[68,[19,101]],[79,[23,97]],[89,[30,90]]];
+    return {
+      back:'',
+      ears:'',
+      head:`<ellipse cx="60" cy="62" rx="38" ry="38" fill="${a.scale}"/>`+rows.map(([y,xs])=>xs.map(x=>sc(x,y)).join('')).join(''),
+      front:`<path d="M32 64 Q32 50 60 50 Q88 50 88 64 Q88 84 71 98 Q60 106 49 98 Q32 84 32 64Z" fill="${a.fur}" stroke="${a.dark}" stroke-width="2"/>
+        <ellipse cx="60" cy="90" rx="12" ry="10.5" fill="${a.light}"/>
+        <ellipse cx="60" cy="79.5" rx="5" ry="3.4" fill="${a.nose}"/>`
+    };
+  },
+  bear(a){
+    return {
+      back:`<path d="M6 120 Q10 90 60 90 Q110 90 114 120Z" fill="${a.fur}" stroke="${a.edge}" stroke-width="2.5"/>
+        <path d="M30 101 Q60 124 90 101 Q87 98 82 99.5 Q60 115 38 99.5 Q33 98 30 101Z" fill="${a.crest}"/>`,
+      ears:`<circle cx="25" cy="29" r="14" fill="${a.fur}" stroke="${a.edge}" stroke-width="2.5"/><circle cx="95" cy="29" r="14" fill="${a.fur}" stroke="${a.edge}" stroke-width="2.5"/><circle cx="25" cy="29" r="7" fill="${a.inner}"/><circle cx="95" cy="29" r="7" fill="${a.inner}"/>`,
+      head:`<circle cx="60" cy="59" r="40" fill="${a.fur}" stroke="${a.edge}" stroke-width="2.5"/>`,
+      front:`<ellipse cx="60" cy="86" rx="20" ry="15" fill="${a.light}"/>
+        <ellipse cx="60" cy="78.5" rx="7" ry="4.8" fill="${a.dark}"/><ellipse cx="57.5" cy="77" rx="2.2" ry="1.3" fill="#fff" opacity=".55"/>`
+    };
+  }
+};
+function eye(cx,cy,t,c){
+  const st = `stroke="${c.line}" stroke-width="3" stroke-linecap="round" fill="none"`;
+  const ring = c.ring ? ` stroke="${c.ring}" stroke-width="1.8"` : '';
   switch(t){
     case 'h': return `<path d="M${cx-6} ${cy+2} Q${cx} ${cy-6} ${cx+6} ${cy+2}" ${st}/>`;
     case 'c': return `<path d="M${cx-6} ${cy-1} Q${cx} ${cy+5} ${cx+6} ${cy-1}" ${st}/>`;
     case 'w': return `<circle cx="${cx}" cy="${cy}" r="6.5" fill="#fff" stroke="${INK}" stroke-width="2"/><circle cx="${cx}" cy="${cy+.5}" r="3.6" fill="${INK}"/><circle cx="${cx+1.4}" cy="${cy-1}" r="1.3" fill="#fff"/>`;
-    case 'half': return `<path d="M${cx-5} ${cy} A5 5 0 0 0 ${cx+5} ${cy} Z" fill="${INK}"/><path d="M${cx-6.5} ${cy} L${cx+6.5} ${cy}" ${st}/>`;
+    case 'half': return `<path d="M${cx-5} ${cy} A5 5 0 0 0 ${cx+5} ${cy} Z" fill="${INK}"${ring}/><path d="M${cx-6.5} ${cy} L${cx+6.5} ${cy}" ${st}/>`;
     case 's': return `<ellipse cx="${cx}" cy="${cy}" rx="6.5" ry="4.5" fill="#fff" stroke="${INK}" stroke-width="2"/><circle cx="${cx+3}" cy="${cy+.5}" r="3" fill="${INK}"/><path d="M${cx-7} ${cy-3} L${cx+7} ${cy-4.5}" ${st}/>`;
-    default: return `<circle cx="${cx}" cy="${cy}" r="4.6" fill="${INK}"/><circle cx="${cx+1.5}" cy="${cy-1.6}" r="1.5" fill="#fff"/>`;
+    default: return `<circle cx="${cx}" cy="${cy}" r="4.8" fill="${INK}"${ring}/><circle cx="${cx+1.5}" cy="${cy-1.6}" r="1.6" fill="#fff"/>`;
   }
 }
 function mouth(m,mo,mt){
-  const cy=87, w=11, st=`stroke="${INK}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
-  if(mt==='o') return `<ellipse cx="60" cy="${cy+1}" rx="${f1(4+mo*2)}" ry="${f1(3+mo*5)}" fill="${INK}"/>`;
-  if(mt==='zig') return `<path d="M49 ${cy} l5.5 -3 l5.5 3 l5.5 -3 l5.5 3" ${st}/>`;
+  const cy=88, w=10, st=`stroke="${INK}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
+  if(mt==='o') return `<ellipse cx="60" cy="${cy+1}" rx="${f1(3.5+mo*2)}" ry="${f1(2.5+mo*4.5)}" fill="${INK}"/>`;
+  if(mt==='zig') return `<path d="M50 ${cy} l5 -2.6 l5 2.6 l5 -2.6 l5 2.6" ${st}/>`;
   if(mo>.05){
-    const top = cy + (m>0 ? m*2 : m*8), bot = cy + mo*16 + (m>0 ? m*8 : 0);
+    const top = cy + (m>0 ? m*2 : m*7), bot = cy + mo*13 + (m>0 ? m*6 : 0);
     return `<path d="M${60-w} ${cy} Q60 ${f1(top)} ${60+w} ${cy} Q60 ${f1(bot)} ${60-w} ${cy} Z" fill="${INK}"/>`;
   }
-  return `<path d="M${60-w} ${cy} Q60 ${f1(cy+m*11)} ${60+w} ${cy}" ${st}/>`;
+  return `<path d="M${60-w} ${cy} Q60 ${f1(cy+m*10)} ${60+w} ${cy}" ${st}/>`;
 }
-const star=(x,y,r)=>`<path d="M${x} ${y-r} L${f1(x+r*.28)} ${f1(y-r*.28)} L${x+r} ${y} L${f1(x+r*.28)} ${f1(y+r*.28)} L${x} ${y+r} L${f1(x-r*.28)} ${f1(y+r*.28)} L${x-r} ${y} L${f1(x-r*.28)} ${f1(y-r*.28)}Z" fill="#F2BE3C"/>`;
+const star=(x,y,r)=>`<path d="M${x} ${y-r} L${f1(x+r*.28)} ${f1(y-r*.28)} L${x+r} ${y} L${f1(x+r*.28)} ${f1(y+r*.28)} L${x} ${y+r} L${f1(x-r*.28)} ${f1(y+r*.28)} L${x-r} ${y} L${f1(x-r*.28)} ${f1(y-r*.28)}Z" fill="#F2BE3C" stroke="#C98F12" stroke-width=".8"/>`;
 const EXTRA = {
-  blush:`<ellipse cx="37" cy="81" rx="6" ry="3.5" fill="#EE9393" opacity=".7"/><ellipse cx="83" cy="81" rx="6" ry="3.5" fill="#EE9393" opacity=".7"/>`,
-  tear:`<path d="M75 74 Q70.5 82 75 85.5 Q79.5 82 75 74Z" fill="#62B3E8"/>`,
-  sweat:`<path d="M96 36 Q90 48 96 52 Q102 48 96 36Z" fill="#9BD3F3" stroke="#5DA6D6" stroke-width="1.2"/>`,
-  sparkle: star(14,30,7)+star(106,22,5.5),
-  zz:`<text x="92" y="32" font-size="16" font-weight="700" fill="#5B6B80" font-family="sans-serif">z</text><text x="103" y="20" font-size="12" font-weight="700" fill="#5B6B80" font-family="sans-serif">z</text>`,
-  vein:`<path d="M90 22 Q94 27 99 22 M90 36 Q94 31 99 36 M88 25 Q93 29 88 33 M101 25 Q96 29 101 33" stroke="#D24E44" stroke-width="2.6" fill="none" stroke-linecap="round"/>`,
-  heart:`<path d="M101 31 C101 26 94 24 94 30 C94 34 101 37 101 40 C101 37 108 34 108 30 C108 24 101 26 101 31Z" fill="#E56A7C"/>`,
-  scribble:`<path d="M91 24 c4 -5 9 3 4 6 c-5 3 -7 -6 0 -6 c7 0 6 9 1 8" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
-  breeze:`<path d="M2 54 q8 -4 15 0 M0 64 q9 -4 17 0" stroke="#6DB8A2" stroke-width="2.6" fill="none" stroke-linecap="round"/>`
+  blush:c=>`<ellipse cx="37" cy="80" rx="6" ry="3.5" fill="#EE8A8A" opacity="${c.ring?'.9':'.7'}"/><ellipse cx="83" cy="80" rx="6" ry="3.5" fill="#EE8A8A" opacity="${c.ring?'.9':'.7'}"/>`,
+  tear:()=>`<path d="M75 74 Q70.5 82 75 85.5 Q79.5 82 75 74Z" fill="#62B3E8" stroke="#3E8FC4" stroke-width="1"/>`,
+  sweat:()=>`<path d="M98 40 Q92 52 98 56 Q104 52 98 40Z" fill="#9BD3F3" stroke="#5DA6D6" stroke-width="1.2"/>`,
+  sparkle:()=> star(108,46,6.5)+star(112,24,4.5),
+  zz:()=>`<text x="96" y="30" font-size="16" font-weight="700" fill="#5B6B80" font-family="sans-serif">z</text><text x="106" y="18" font-size="12" font-weight="700" fill="#5B6B80" font-family="sans-serif">z</text>`,
+  vein:()=>`<g transform="translate(4 18)"><path d="M90 22 Q94 27 99 22 M90 36 Q94 31 99 36 M88 25 Q93 29 88 33 M101 25 Q96 29 101 33" stroke="#D24E44" stroke-width="2.8" fill="none" stroke-linecap="round"/></g>`,
+  heart:()=>`<path d="M104 45 C104 40 97 38 97 44 C97 48 104 51 104 54 C104 51 111 48 111 44 C111 38 104 40 104 45Z" fill="#E56A7C"/>`,
+  scribble:c=>`<path d="M95 40 c4 -5 9 3 4 6 c-5 3 -7 -6 0 -6 c7 0 6 9 1 8" stroke="${c.ring?'#5B6B80':INK}" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+  breeze:()=>`<path d="M98 58 q8 -4 15 0 M100 68 q9 -4 17 0" stroke="#4FA88E" stroke-width="2.6" fill="none" stroke-linecap="round"/>`
 };
 function face(ak, x={}, label=''){
   const a = DATA.animals[ak] || DATA.animals.squirrel;
+  const sp = SPECIES[a.species||ak](a);
+  const c = { line:a.line||INK, ring:a.ring||'' };
   const b=x.b||0, r=x.r||0, m=x.m||0, mo=x.mo||0;
-  const by = 57 - r*7;
-  const brow=(ox,ix)=>`<path d="M${ox} ${f1(by-b*2)} Q${(ox+ix)/2} ${f1(by-2.5-b*1.5)} ${ix} ${f1(by+b*5)}" stroke="${INK}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
+  const by = 58 - r*6;
+  const brow=(ox,ix)=>`<path d="M${ox} ${f1(by-b*2)} Q${(ox+ix)/2} ${f1(by-2.5-b*1.5)} ${ix} ${f1(by+b*5)}" stroke="${c.line}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
   let s = `<svg class="face" viewBox="0 0 120 120" ${label?`role="img" aria-label="${label}"`:'aria-hidden="true"'}>`;
-  s += ears(a);
-  s += a.shape==='oval' ? `<ellipse cx="60" cy="64" rx="40" ry="44" fill="${a.head}"/>` : `<circle cx="60" cy="64" r="43" fill="${a.head}"/>`;
-  s += deco(a);
-  s += `<ellipse cx="60" cy="75" rx="33" ry="27" fill="${a.mask}"/>`;
+  s += sp.back + sp.ears + sp.head + sp.front;
   s += brow(39,53) + brow(81,67);
-  s += eye(47,69,x.e||'o') + eye(73,69,x.e||'o');
+  s += eye(47,69,x.e||'o',c) + eye(73,69,x.e||'o',c);
   s += mouth(m,mo,x.mt);
-  (x.x||[]).forEach(k=>{ s += EXTRA[k]||''; });
+  (x.x||[]).forEach(k=>{ s += EXTRA[k] ? EXTRA[k](c) : ''; });
   return s + '</svg>';
 }
 const wordFace = (w,ak)=>face(ak||w.a, w.x, `${DATA.animals[ak||w.a].name}覺得${w.w}`);
+const optFace = w=>face(w.a, w.x); /* 放在按鈕裡、旁邊已有文字時用，不另外唸出 */
+const wordTip = w=>w.tip || DATA.zones[w.z[0]].tips[0]; /* data.js 的詞可以自己寫 tip，沒寫就用所屬區的第一個方法 */
 
 /* ---------- shared UI ---------- */
 const ICON = {
@@ -525,12 +573,19 @@ const ICON = {
   match:`<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="10" height="8" rx="2" fill="currentColor" opacity=".3"/><rect x="19" y="19" width="10" height="8" rx="2" fill="currentColor" opacity=".3"/><path d="M13 9c8 0 0 14 6 14" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`,
   thermo:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13 5a3 3 0 0 1 6 0v13a6 6 0 1 1-6 0z" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="23" r="3" fill="currentColor"/><path d="M16 21v-9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`,
   calm:`<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="16" r="5" fill="currentColor" opacity=".35"/></svg>`,
-  print:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 11V4h14v7M9 22H5V11h22v11h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><rect x="9" y="18" width="14" height="10" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>`
+  print:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 11V4h14v7M9 22H5V11h22v11h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><rect x="9" y="18" width="14" height="10" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>`,
+  school:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 28V14l12-8 12 8v14M2 28h28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><path d="M13 28v-7h6v7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><circle cx="16" cy="14" r="2.6" fill="currentColor"/></svg>`,
+  home:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16L16 6l12 10M8 13v15h16V13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><path d="M13.5 28v-7h5v7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>`,
+  people:`<svg viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="11" r="4.2"/><circle cx="22.5" cy="12.5" r="3.4"/><path d="M4 27c0-5 3.6-8.4 8-8.4s8 3.4 8 8.4"/><path d="M19.5 20.4c.9-.6 1.9-.9 3-.9 3.5 0 6 2.8 6 6.8"/></g></svg>`
 };
-function bar(title){
-  return `<header class="bar noprint"><a class="btn back" href="#home" aria-label="回天氣站">${ICON.back}<span class="small">天氣站</span></a><h2>${title}</h2><button class="btn hand" data-act="help">${ICON.heart}<span class="long">我需要幫忙</span></button></header>`;
+/* 求助頁人物卡的小圖示：依稱呼猜一個，老師改了 data.js 也不會對錯位 */
+const personIcon = who => /家/.test(who) ? ICON.home : /輔導/.test(who) ? ICON.heart : /導師|班/.test(who) ? ICON.school : ICON.people;
+function bar(title, help=true){
+  return `<header class="bar noprint"><a class="btn back" href="#home" aria-label="回天氣站">${ICON.back}<span class="small">天氣站</span></a><h2>${title}</h2>${help?`<button class="btn hand" data-act="help">${ICON.heart}<span class="long">我需要幫忙</span></button>`:''}</header>`;
 }
-function modal(html){ $('#modal-box').innerHTML = html; $('#modal').hidden = false; const f=$('#modal-box button'); f && f.focus(); }
+let modalAt=0, downAt=0;
+document.addEventListener('pointerdown',()=>{ downAt=performance.now(); },true);
+function modal(html){ $('#modal-box').innerHTML = html; $('#modal').hidden = false; modalAt=performance.now(); const f=$('#modal-box button'); f && f.focus(); }
 function closeModal(){ $('#modal').hidden = true; $('#modal-box').innerHTML=''; }
 function showTeacher(){
   const el=$('#showteacher');
@@ -546,14 +601,15 @@ function helpPrompt(){
 
 /* =========================== 首頁 =========================== */
 function initHome(){
+  $('#secret').textContent = '心情天氣站　' + DATA.version;
   $('#friends').innerHTML = AK.map((k,i)=>{ const a=DATA.animals[k]; const ex=[{e:'h',m:.8,mo:.3},{e:'c',m:.4},{r:.6,e:'w',mo:.3,mt:'o'},{e:'h',m:.5,x:['blush']}][i]; return `<div class="friend">${face(k,ex)}<b>${a.name}</b>${a.kind}</div>`; }).join('');
   const sample = { storm:['生氣','緊張'], sun:['開心','興奮'], rain:['難過','疲倦'], breeze:['平靜','安心'] };
   const fa = { storm:'pangolin', sun:'squirrel', rain:'turtle', breeze:'bear' };
   $('#map').innerHTML = `<span class="axis t">點一區，看看裡面的心情</span>
-    <span class="axis y"><span>有精神 ↑</span><span>↓ 沒力氣</span></span>
+    <span class="axis y"><span>↑有精神</span><span>沒力氣↓</span></span>
     <span class="axis x"><span>← 不舒服</span><span>舒服 →</span></span>` +
     ['storm','sun','rain','breeze'].map(z=>{ const Z=DATA.zones[z]; const w=WORD[sample[z][0]];
-      return `<button class="cell z-${z}" data-zone="${z}">${face(fa[z],w.x)}<span class="zn">${WX[z]}${Z.name}</span><span class="zd">${Z.desc}</span><span class="zw">${sample[z].join('・')}…</span></button>`; }).join('');
+      return `<button class="cell z-${z}" data-zone="${z}">${ZDECO[z]}${face(fa[z],w.x)}<span class="zn">${WX[z]}${Z.name}</span><span class="zd">${Z.desc}</span><span class="zw">${sample[z].join('・')}…</span></button>`; }).join('');
   const st = [
     ['cards','認識情緒卡','翻卡片，看每種心情的意思和身體感覺。個人、輔導課開場'],
     ['detective','情緒偵探','看事件或表情，找出是什麼心情。全班、小組'],
@@ -562,7 +618,7 @@ function initHome(){
     ['calm','心情冷靜角','跟著呼吸、數到 10、聽聲音，讓自己平靜下來'],
     ['print','列印版','情緒卡、情境卡、學習單，沒有平板也能用']
   ];
-  $('#stations').innerHTML = st.map(([k,n,d])=>`<a class="station" href="#${k}" style="text-decoration:none;color:inherit"><span class="ico">${ICON[k]}</span><b>${n}</b><span>${d}</span></a>`).join('') +
+  $('#stations').innerHTML = st.map(([k,n,d])=>`<a class="station st-${k}" href="#${k}"><span class="ico">${ICON[k]}</span><b>${n}</b><span>${d}</span></a>`).join('') +
     `<button class="station help" data-act="help"><span class="ico">${ICON.heart}</span><b>我需要幫忙</b><span>心情很不好的時候，這裡告訴你可以找誰</span></button>`;
 }
 
@@ -581,17 +637,18 @@ function renderCards(){
   const list = DATA.words.filter(w=>cardFilter==='all'||w.z.includes(cardFilter));
   $('#cardgrid').innerHTML = list.map(w=>{
     const z=w.z[0];
-    return `<button class="ecard z-${z}" data-card="${w.w}" aria-label="${w.w}，點一下翻面">
-      <span class="flip">翻面 ↻</span>
-      <span class="front">${wordFace(w)}<span class="w">${w.w}</span>${SET.en?`<span class="en">${w.en}</span>`:''}<span class="tags">${w.z.map(ztag).join('')}</span></span>
-      <span class="back"><span class="w" style="font-size:24px">${w.w}</span><span class="dt">意思</span><span class="dd">${w.say}</span><span class="dt">身體的感覺</span><span class="dd">${w.body}</span>${SET.en?`<span class="dt">英文</span><span class="dd">${w.en}</span>`:''}<span class="dt">可以試試</span><span class="dd">${DATA.zones[z].tips[0]}</span></span>
-    </button>`; }).join('');
+    return `<button class="ecard" data-card="${w.w}"><span class="inner">
+      <span class="cf z-${z}"><span class="flip">翻面 ↻</span>${wordFace(w)}<span class="w">${w.w}</span>${SET.en?`<span class="en">${w.en}</span>`:''}<span class="tags">${w.z.map(ztag).join('')}</span></span>
+      <span class="cb zb-${z}"><span class="flip">翻回來 ↻</span><span class="w">${w.w}</span><span class="dt">意思</span><span class="dd">${w.say}</span><span class="dt">身體的感覺</span><span class="dd">${w.body}</span><span class="dt">可以試試</span><span class="dd">${wordTip(w)}</span></span>
+    </span></button>`; }).join('');
 }
 
 /* =========================== 情緒偵探 =========================== */
-let det={solved:0,q:null};
+const BOOK=10; /* 偵探手冊一本 10 格；只是集章鼓勵，換頁就重來，不留紀錄 */
+let det={log:[],q:null};
 function initDetective(){
-  $('#v-detective').innerHTML = bar('情緒偵探') + `<div class="stack"><div class="row" style="justify-content:space-between"><p class="muted">選一個你覺得最像的心情。同一區的心情都算破案。</p><div class="stamps" id="stamps"></div></div><div class="panel stack" id="detq"></div></div>`;
+  det={log:[],q:null};
+  $('#v-detective').innerHTML = bar('情緒偵探') + `<div class="stack"><p class="muted">選一個你覺得最像的心情。答案不只一個，說得通就算破案。</p><div class="book" id="stamps"></div><div class="panel stack" id="detq"></div></div>`;
   detNext();
 }
 function detNext(){
@@ -611,25 +668,41 @@ function detNext(){
   det.q=q; det.done=false;
   renderDet();
 }
-function renderStamps(){
-  $('#stamps').innerHTML = det.solved ? `破案章 ${Array.from({length:Math.min(det.solved,12)},(_,i)=>`<svg class="stamp" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 13l3.5 3.5L18 10" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`).join('')}${det.solved>12?` ×${det.solved}`:''}` : '';
+function renderStamps(fresh){
+  const n=det.log.length, book=n?Math.floor((n-1)/BOOK)+1:1, inBook=n-(book-1)*BOOK;
+  const slots=Array.from({length:BOOK},(_,i)=>{ const z=det.log[(book-1)*BOOK+i];
+    return z ? `<span class="slot on z-${z}${fresh&&i===inBook-1?' pop':''}">${WX[z]}</span>` : '<span class="slot"></span>'; }).join('');
+  $('#stamps').innerHTML = `<span class="book-t">${ICON.detective}偵探手冊${book>1?`　第 ${book} 本`:''}</span><span class="slots" role="img" aria-label="這本已經破了 ${inBook} 個案子，集滿 ${BOOK} 個完成一本">${slots}</span>`;
 }
 function renderDet(){
   const q=det.q; renderStamps();
   const head = q.kind==='face'
     ? `<p class="lead">猜猜看，<b>${DATA.animals[q.ak].name}</b>現在是什麼心情？</p><div class="qface">${face(q.ak,q.word.x)}</div>`
     : `<p class="muted small">校園事件</p><p class="scene">${q.sc.t}</p><p class="lead">遇到這件事，可能會有什麼心情？</p>`;
-  $('#detq').innerHTML = head + `<div class="opts">${q.opts.map(w=>`<button class="opt" data-det="${w.w}">${w.w}</button>`).join('')}</div><div id="detfb" aria-live="polite"></div>`;
+  /* 看事件的題目，選項旁邊畫上表情，幫助還不熟悉字的小朋友；看表情的題目不畫，以免變成找相同的圖 */
+  $('#detq').innerHTML = head + `<div class="opts">${q.opts.map(w=>`<button class="opt" data-det="${w.w}">${q.kind==='scene'?optFace(w):''}${w.w}</button>`).join('')}</div><div id="detfb" aria-live="polite"></div>`;
 }
 function detPick(word, btn){
   const q=det.q; if(det.done) return;
   const w=WORD[word];
-  if(overlap(w.z,q.zones)){
-    det.done=true; det.solved++;
+  const shared = w.z.filter(z=>q.zones.includes(z));
+  if(shared.length){
+    det.done=true; det.log.push(shared[0]);
     btn.classList.add('right');
+    const zn = shared.map(z=>DATA.zones[z].name).join('、');
+    const common = q.expect.includes(word);           /* 是不是大多數人會選的詞 */
     const others = q.expect.filter(e=>e!==word);
-    $('#detfb').innerHTML = `<div class="feedback good"><b>破案！</b><p>「${word}」是${w.z.map(z=>DATA.zones[z].name).join('，也是')}的心情。${others.length?`有人也可能覺得：${others.join('、')}。`:''}</p><p><b style="font-size:18px">可以試試：</b>${q.tip}</p><div><button class="btn primary big" data-act="detnext">下一題</button></div></div>`;
-    renderStamps();
+    let msg;
+    if(q.kind==='face'){
+      const nm = DATA.animals[q.ak].name;
+      msg = common ? `${nm}的表情就是「${word}」。` : `${nm}的表情其實是「${q.word.w}」，跟你選的「${word}」都在${zn}，所以也說得通。`;
+    }else{
+      msg = common ? `遇到這件事，很多人會覺得「${word}」。${others.length?`也有人會覺得：${others.join('、')}。`:''}`
+                   : `「${word}」也在${zn}，說得通。不過很多人遇到這件事，會先覺得：${q.expect.join('、')}。`;
+    }
+    const full = det.log.length % BOOK === 0;
+    $('#detfb').innerHTML = `<div class="feedback good"><b>${common?'破案！':'說得通，也算破案！'}</b><p>${msg}</p><p><b style="font-size:18px">可以試試：</b>${q.tip}</p>${full?`<p class="book-done">${WX.sun}集滿一本偵探手冊了！你已經認識好多種心情。</p>`:''}<div><button class="btn primary big" data-act="detnext">下一題</button></div></div>`;
+    renderStamps(true);
   }else{
     btn.classList.add('tried');
     const Z=DATA.zones[q.zones[0]];
@@ -640,7 +713,7 @@ function detPick(word, btn){
 /* =========================== 情境配對 =========================== */
 let mt={};
 function initMatch(){
-  $('#v-match').innerHTML = bar('情境配對') + `<div class="stack"><p class="muted">先點一件事，再點一個心情，配成一對。同一區的心情都算配對成功。</p><div class="panel stack" id="mboard"></div></div>`;
+  $('#v-match').innerHTML = bar('情境配對') + `<div class="stack"><p class="muted">先點左邊的一件事，再點右邊一個適合的心情，配成一對。</p><div class="panel stack" id="mboard"></div></div>`;
   matchNew();
 }
 function matchNew(){
@@ -654,7 +727,7 @@ function renderMatch(){
   const done = mt.n===mt.scenes.length;
   $('#mboard').innerHTML = `<div class="match">
     <div class="mcol">${mt.scenes.map((s,i)=>{ const p=mt.pairs['s'+i]; return `<button class="mitem ${p?'done':''} ${mt.sel===i?'sel':''}" data-ms="${i}" ${p?'aria-disabled="true"':''}>${p?`<span class="pn">${p}</span>`:''}<span>${s.t}</span></button>`; }).join('')}</div>
-    <div class="mcol">${mt.words.map((w,i)=>{ const p=mt.pairs['w'+i]; return `<button class="mitem word ${p?'done':''}" data-mw="${i}" ${p?'aria-disabled="true"':''}>${p?`<span class="pn">${p}</span>`:''}${wordFace(w)}${w.w}</button>`; }).join('')}</div>
+    <div class="mcol">${mt.words.map((w,i)=>{ const p=mt.pairs['w'+i]; return `<button class="mitem word ${p?'done':''}" data-mw="${i}" ${p?'aria-disabled="true"':''}>${p?`<span class="pn">${p}</span>`:''}${optFace(w)}${w.w}</button>`; }).join('')}</div>
   </div>
   <div id="mfb" aria-live="polite">${done?`<div class="feedback good"><b>全部配好了！</b><p>想一想：你有沒有遇過其中一件事？那時候你是什麼心情？</p><div><button class="btn primary big" data-act="matchnew">再玩一回</button></div></div>`:`<p class="muted">${mt.sel===null?'先點左邊的一件事。':'很好，現在點右邊的一個心情。'}</p>`}</div>`;
 }
@@ -665,7 +738,7 @@ function matchWord(i, btn){
   const s=mt.scenes[mt.sel], w=mt.words[i];
   if(overlap(s.z,w.z)){
     mt.n++; mt.pairs['s'+mt.sel]=mt.n; mt.pairs['w'+i]=mt.n; const tip=s.tip; mt.sel=null; renderMatch();
-    if(mt.n<mt.scenes.length) $('#mfb').innerHTML=`<div class="feedback good"><p>配對成功！可以試試：${tip}</p></div>`;
+    if(mt.n<mt.scenes.length) $('#mfb').innerHTML=`<div class="feedback good"><p><b style="font-size:20px">配對成功！</b>${s.w.includes(w.w)?`遇到這件事，很多人會覺得「${w.w}」。`:`很多人遇到這件事，會覺得：${s.w.join('、')}。`}</p><p>可以試試：${tip}</p></div>`;
   }else{
     btn.classList.remove('nudge'); void btn.offsetWidth; btn.classList.add('nudge');
     const Z=DATA.zones[s.z[0]];
@@ -676,9 +749,9 @@ function matchWord(i, btn){
 /* =========================== 心情溫度計 =========================== */
 const TLABEL = {10:'超級好',9:'很好',8:'不錯',7:'還不錯',6:'還可以',5:'普普通通',4:'有點不好',3:'不太好',2:'很不好',1:'非常糟'};
 let th={};
-function tColor(n){ return n>=8?'var(--sun-t)':n>=6?'var(--breeze-t)':n>=4?'var(--storm-t)':'var(--rain-t)'; }
+function tColor(n){ return n>=7?'var(--sun)':n>=4?'var(--breeze)':'var(--rain)'; } /* 跟液柱的漸層一致：低＝藍、中＝綠、高＝黃 */
 function initThermo(){
-  th={step:1,level:null,energy:null,word:null};
+  th={step:1,level:null,energy:null,word:null,shown:0};
   $('#v-thermo').innerHTML = bar('心情溫度計') + `<div class="stack"><p class="muted">這裡不會記下你選了什麼。關掉頁面就沒有了。</p><div class="panel stack" id="tbox"></div></div>`;
   renderThermo();
 }
@@ -686,7 +759,10 @@ function renderThermo(){
   const steps = `<div class="steps" aria-hidden="true">${['量溫度','有沒有精神','選心情','說出來'].map((s,i)=>`<span class="${th.step===i+1?'on':''}">${i+1} ${s}</span>`).join('')}</div>`;
   let h='';
   if(th.step===1){
-    h = `<h3>今天的心情，大概幾度？</h3><div class="thermo"><div><div class="tube" role="group" aria-label="心情溫度 1 到 10">${[10,9,8,7,6,5,4,3,2,1].map(n=>`<button class="seg" data-lv="${n}" aria-pressed="${th.level===n}" style="background:${th.level&&n<=th.level?tColor(th.level):'var(--line)'}">${n}</button>`).join('')}</div><div class="bulb" style="background:${th.level?tColor(th.level):'var(--surface)'}">${th.level||'?'}</div></div>
+    h = `<h3>今天的心情，大概幾度？</h3><div class="thermo"><div class="meter">
+        <div class="tube" aria-hidden="true"><span class="liquid" style="--lv:${th.shown||0}"></span></div>
+        <div class="bulb" aria-hidden="true" style="--bulb:${th.level?tColor(th.level):'var(--line)'}"><span>${th.level||'?'}</span></div>
+        <div class="ticks" role="group" aria-label="心情溫度 1 到 10">${[10,9,8,7,6,5,4,3,2,1].map(n=>`<button class="tick" data-lv="${n}" aria-pressed="${th.level===n}"><b>${n}</b>${TLABEL[n]}</button>`).join('')}</div></div>
       <div class="stack" style="align-content:center">${th.level?`<p class="tlabel">${th.level} 度：${TLABEL[th.level]}</p><p class="muted">10 是心裡超級好，1 是心裡非常糟。選好了就按下一步。</p><div><button class="btn primary big" data-act="t-next">下一步</button></div>`:`<p class="lead muted">點溫度計上的數字。<br>10 是心裡超級好，1 是心裡非常糟。</p>`}</div></div>`;
   }else if(th.step===2){
     h = `<h3>身體現在的感覺比較像哪一個？</h3><div class="energy">
@@ -698,7 +774,7 @@ function renderThermo(){
     const valOk = Z=> th.level>=7 ? Z.pleasant : th.level<=4 ? !Z.pleasant : true;
     const zs = ZK.filter(z=>valOk(DATA.zones[z]) && (th.energy==='mid' || DATA.zones[z].energy===th.energy));
     const list = DATA.words.filter(w=>overlap(w.z,zs));
-    h = `<h3>這些心情裡，哪一個最像你？</h3><p class="muted">${zs.map(ztag).join(' ')}</p><div class="opts">${list.map(w=>`<button class="opt" data-tw="${w.w}">${wordFace(w)}${w.w}</button>`).join('')}<button class="opt" data-tw="" style="font-size:20px">說不出來</button></div>
+    h = `<h3>這些心情裡，哪一個最像你？</h3><p class="muted">${zs.map(ztag).join(' ')}</p><div class="opts">${list.map(w=>`<button class="opt" data-tw="${w.w}">${optFace(w)}${w.w}</button>`).join('')}<button class="opt" data-tw="" style="font-size:20px">說不出來</button></div>
       <div><button class="btn ghost" data-act="t-back">← 上一步</button></div>`;
   }else{
     const w = th.word ? WORD[th.word] : null;
@@ -712,6 +788,9 @@ function renderThermo(){
     h += `<div class="row"><button class="btn primary big" data-act="t-again">再量一次</button><a class="btn big" href="#calm">去冷靜角</a><button class="btn hand big" data-act="help">我想找人聊聊</button></div>`;
   }
   $('#tbox').innerHTML = steps + h;
+  /* 液柱：先畫在上一次的高度，再改成新的高度，才看得到上升／下降的動畫 */
+  const lq=$('#tbox .liquid');
+  if(lq){ void lq.offsetWidth; lq.style.setProperty('--lv', th.level||0); th.shown=th.level||0; }
 }
 
 /* =========================== 心情冷靜角 =========================== */
@@ -782,11 +861,11 @@ function playSound(kind){
 /* =========================== 需要幫助時 =========================== */
 function initHelp(){
   const H=DATA.help, room = SET.mode==='room';
-  $('#v-help').innerHTML = bar('需要幫忙的時候') + `<div class="stack">
+  $('#v-help').innerHTML = bar('需要幫忙的時候',false) + `<div class="stack">
     <div class="help-hero">${face('bear',{e:'c',m:.35})}<p>${H.thanks}</p></div>
     ${room ? `<div class="panel stack"><p class="lead">${H.roomLine}</p><div class="row"><button class="btn hand big" data-act="showteacher">給老師看</button><a class="btn big" href="#calm">先去冷靜角</a></div></div>` : ''}
     <div class="stack"><h3>${room?'離開輔導室以後，也可以找這些大人':H.classLine}</h3>
-      <div class="people">${H.people.map(p=>`<div class="person"><b>${p.who}</b><span>${p.how}</span></div>`).join('')}</div></div>
+      <div class="people">${H.people.map(p=>`<div class="person"><span class="pi">${personIcon(p.who)}</span><b>${p.who}</b><span>${p.how}</span></div>`).join('')}</div></div>
     <div class="stack"><h3>不知道怎麼開口？可以這樣說</h3><div class="lines">${H.sayIt.map(s=>`<p>「${s}」</p>`).join('')}</div></div>
     ${SET.hotline ? `<div class="stack"><h3>也可以打電話</h3><div class="hotline">${H.hotlines.map(h=>`<div><span class="muted small">${h.name}</span><br><b>${h.num}</b><br><span class="small muted">${h.note}</span></div>`).join('')}</div></div>` : ''}
     ${room ? '' : `<div class="row"><button class="btn hand big" data-act="showteacher">給大人看的畫面</button><a class="btn big" href="#calm">等待時，先去冷靜角</a></div>`}
@@ -805,7 +884,7 @@ function initPrint(){
   wpages.forEach((pg,pi)=>pages.push(['front',`<h4>情緒卡 正面 ${pi+1}/${wpages.length}<small>A4・沿虛線剪下</small></h4><div class="pgrid">${pg.map(w=>`<div class="pc pt-${w.z[0]}">${wordFace(w)}<span class="pw">${w.w}</span><span class="pz">${w.z.map(z=>DATA.zones[z].name).join('・')}</span>${SET.en?`<span class="pe">${w.en}</span>`:''}</div>`).join('')}</div>`]));
   wpages.forEach((pg,pi)=>{
     const rows=chunk(pg,3).map(r=>{ while(r.length<3) r.push(null); return r.reverse(); }).flat();
-    pages.push(['back',`<h4>情緒卡 背面 ${pi+1}/${wpages.length}<small>雙面列印選「長邊翻頁」，每列已左右對調</small></h4><div class="pgrid">${rows.map(w=>w?`<div class="pc b"><span class="pw">${w.w}</span><span class="dt">意思</span><span class="dd">${w.say}</span><span class="dt">身體的感覺</span><span class="dd">${w.body}</span><span class="dt">可以試試</span><span class="dd">${DATA.zones[w.z[0]].tips[0]}</span></div>`:'<div class="pc" style="border-color:transparent"></div>').join('')}</div>`]);
+    pages.push(['back',`<h4>情緒卡 背面 ${pi+1}/${wpages.length}<small>雙面列印選「長邊翻頁」，每列已左右對調</small></h4><div class="pgrid">${rows.map(w=>w?`<div class="pc b bb-${w.z[0]}"><span class="pw">${w.w}</span><span class="dt">意思</span><span class="dd">${w.say}</span><span class="dt">身體的感覺</span><span class="dd">${w.body}</span><span class="dt">可以試試</span><span class="dd">${wordTip(w)}</span></div>`:'<div class="pc" style="border-color:transparent"></div>').join('')}</div>`]);
   });
   const spages=chunk(DATA.scenes,9);
   spages.forEach((pg,pi)=>pages.push(['scenes',`<h4>校園情境卡 ${pi+1}/${spages.length}<small>配情緒卡一起玩：抽一張事件，找一張心情</small></h4><div class="pgrid">${pg.map((s,i)=>`<div class="pc s"><span class="sn">情境 ${pi*9+i+1}</span>${s.t}</div>`).join('')}</div>`]));
@@ -818,15 +897,17 @@ function initPrint(){
     <p>④ 我現在覺得＿＿＿＿＿＿＿＿，因為</p><div class="lineq"></div><div class="lineq"></div>
     <p>⑤ 我可以試試這個方法：</p><div class="lineq"></div>
     <p style="font-size:11pt">心情很不好的時候，可以告訴導師、輔導室的老師，或家裡信任的大人。你不用一個人承受。</p></div>`]);
-  pages.push(['wallet',`<h4>求助小卡<small>剪下後放在鉛筆盒或書包裡</small></h4><div class="wallet">${Array.from({length:8},()=>`<div class="pc">${face('bear',{e:'c',m:.35})}<b>心情很不好的時候</b><span>我可以找：</span><span class="fill"></span><span class="fill"></span><span style="font-size:9pt">我可以說：「我想跟你說一件事。」</span></div>`).join('')}</div>`]);
+  pages.push(['wallet',`<h4>求助小卡<small>剪下後放在鉛筆盒或書包裡</small></h4><div class="wallet">${Array.from({length:8},()=>`<div class="pc"><div class="wh">${face('bear',{e:'c',m:.35})}<b>心情很不好的時候</b></div><span>我可以找：</span><span class="fill"></span><span class="fill"></span><span class="say2">我可以說：「我想跟你說一件事。」</span></div>`).join('')}</div>`]);
   $('#v-print').innerHTML = bar('列印版') + `<div class="stack">
     <div class="panel stack noprint"><p>勾選要印的內容，然後用瀏覽器的列印功能（電腦按 <b>Ctrl＋P</b>，Mac 按 <b>⌘＋P</b>；iPad 用 Safari 的「分享 → 列印」）。紙張選 A4、邊界「無」、縮放 100%，並勾選「背景圖形」才會印出底色。</p>
-      <p class="small muted">如果在 Claude 裡面按列印沒有反應，請先把這個頁面用瀏覽器直接打開再印。之後放上學校網站就沒有這個問題。</p>
+      <p class="small muted">建議用電腦的 Chrome 或 Edge 列印，版面最準確。印之前可以先按「預覽列印」確認每張都是一整頁。</p>
       <div class="ptools">${opts.map(([k,n])=>`<label><input type="checkbox" id="pp-${k}" data-pp="${k}" ${PSEL[k]?'checked':''}>${n}</label>`).join('')}</div></div>
     <div class="sheets">${pages.map(([k,h])=>`<div class="sheet" data-pk="${k}" ${PSEL[k]?'':'hidden'}>${h}</div>`).join('')}</div></div>`;
 }
 
 /* =========================== 老師設定 =========================== */
+const helpWords = ()=>[...new Set([...DATA.words.filter(w=>w.help).map(w=>w.w), ...DATA.help.triggerWords])];
+const missWords = ()=>DATA.help.triggerWords.filter(t=>!WORD[t]);
 function initTeacher(){
   $('#v-teacher').innerHTML = bar('老師設定與說明') + `<div class="stack">
     <div class="panel stack"><h3>這台裝置的設定</h3><div class="form">
@@ -839,9 +920,11 @@ function initTeacher(){
     <div class="panel stack"><h3>給使用老師的說明</h3><ul class="stack" style="margin:0;padding-left:1.2em;gap:8px">
       <li><b>不登入、不上傳、不留紀錄。</b>心情溫度計選了什麼都不會存下來，換頁或關掉就消失，下一位學生看不到。</li>
       <li><b>工具不會自動通知任何人。</b>學生按了「我需要幫忙」，需要旁邊的大人主動關心。</li>
-      <li><b>沒有分數、沒有排行榜、不記錯題。</b>情緒偵探和情境配對只要選到同一區的心情就算對。</li>
+      <li><b>沒有分數、沒有排行榜、不記錯題。</b>情緒偵探和情境配對只要選到同一區的心情就算對；如果不是大多數人會選的詞，會補一句「很多人遇到這件事，會先覺得……」，讓學生認識更貼切的詞。情緒偵探的「偵探手冊」只是集章鼓勵，離開遊戲就重來。</li>
       <li><b>情緒分類用「舒服 × 有精神」四區。</b>用天氣命名（晴天、微風、雷雨、雨天），一個詞可以同時在兩區。</li>
       <li><b>四隻動物每一隻都會有各種心情</b>，不綁定某一種情緒，避免「某動物＝某情緒」的聯想。名字暫定，可以讓學生命名。</li>
+      <li><b>老師設定頁的進入方式：</b>首頁長按頁尾「心情天氣站 草案…」約 2 秒，或網址加 <code>#teacher</code>，再輸入密碼。密碼在 <code>data.js</code> 的 <code>teacher.pin</code>，請學校自己改。這只是防止學生誤觸，不是資安保護。</li>
+      <li><b>要改文字：</b>所有情緒詞、情境、因應方法、求助文字都在 <code>data.js</code>，檔案開頭有修改說明，不用動 <code>index.html</code>。</li>
       <li>可以直接用網址打開某個遊戲，例如網址後面加 <code>#calm</code> 就是冷靜角（給之後 3D 校園的雅雅老師入口用）。</li>
     </ul></div>
 
@@ -854,7 +937,7 @@ function initTeacher(){
       ${DATA.scenes.map((s,i)=>`<tr><td>${i+1}</td><td>${s.t}</td><td>${s.z.map(z=>DATA.zones[z].name).join('<br>')}</td><td>${s.w.join('、')}</td><td>${s.tip}</td><td class="draft">草案・待審</td></tr>`).join('')}</tbody></table></div></div>
 
     <div class="panel stack"><h3>審稿用：需要幫助時的流程</h3><div class="tablewrap"><table><tbody>
-      <tr><th>什麼時候提示</th><td>心情溫度計選到 ${DATA.help.triggerLevel} 度以下；或在溫度計選到「${DATA.help.triggerWords.join('、')}」。遊戲裡描述別人的心情時不提示。任何畫面右上角都有「我需要幫忙」。</td><td class="draft">待審</td></tr>
+      <tr><th>什麼時候提示</th><td>心情溫度計選到 ${DATA.help.triggerLevel} 度以下；或在溫度計選到「${helpWords().join('、')}」。遊戲裡描述別人的心情時不提示。任何畫面右上角都有「我需要幫忙」。${missWords().length?`<br><span class="draft">注意：「${missWords().join('、')}」不在情緒詞表裡，學生選不到，要先加進 data.js 的 words。</span>`:''}<br><span class="muted small">待決定：計畫書提到的「絕望」等詞，要不要加進詞表和提示條件。</span></td><td class="draft">待審</td></tr>
       <tr><th>提示怎麼說</th><td>${DATA.help.thanks}</td><td class="draft">待審</td></tr>
       <tr><th>帶去哪裡</th><td>${DATA.help.people.map(p=>p.who).join('、')}</td><td class="draft">待審</td></tr>
       <tr><th>輔導室模式</th><td>${DATA.help.roomLine}</td><td class="draft">待審</td></tr>
@@ -865,10 +948,22 @@ function initTeacher(){
 
 /* =========================== router & events =========================== */
 const VIEWS={home:initHome,cards:initCards,detective:initDetective,match:initMatch,thermo:initThermo,calm:initCalm,help:initHelp,print:initPrint,teacher:initTeacher};
+let teacherOK=false;
+function askPin(){
+  modal(`<form class="stack" id="pinform"><h3 id="modal-t" style="text-align:center">老師專用</h3>
+    <p class="muted" style="text-align:center">請輸入密碼</p>
+    <input class="pin" id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" aria-label="密碼">
+    <p class="pin-err" id="pinerr" aria-live="polite"></p>
+    <div class="btns"><button class="btn primary big" type="submit">進入</button><button class="btn ghost" type="button" data-act="pin-cancel">取消，回天氣站</button></div></form>`);
+  const i=$('#pin'); i && i.focus();
+}
+function leavePin(){ closeModal(); history.replaceState(null,'','#home'); route(); }
 function route(){
   const k = (location.hash||'').slice(1);
   const key = VIEWS[k] ? k : 'home';
   clearCalm(); closeModal();
+  if(key!=='teacher') teacherOK=false;
+  if(key==='teacher' && !teacherOK){ $$('.view').forEach(v=>{ v.hidden = v.id!=='v-home'; }); initHome(); askPin(); return; }
   $$('.view').forEach(v=>{ v.hidden = v.id!=='v-'+key; });
   VIEWS[key]();
   try{ window.scrollTo(0,0); }catch(e){}
@@ -880,6 +975,7 @@ document.addEventListener('click',e=>{
   const d=t.dataset;
   if(d.act==='help'){ closeModal(); go('help'); return; }
   if(d.act==='close'){ closeModal(); return; }
+  if(d.act==='pin-cancel'){ leavePin(); return; }
   if(d.go){ closeModal(); go(d.go); return; }
   if(d.act==='showteacher'){ showTeacher(); return; }
   if(t.id==='showteacher'){ t.hidden=true; return; }
@@ -910,9 +1006,21 @@ document.addEventListener('change',e=>{
   else if(t.id==='set-en'){ SET.en=t.checked; saveSet(); }
   else if(t.dataset.pp){ PSEL[t.dataset.pp]=t.checked; $$(`.sheet[data-pk="${t.dataset.pp}"]`).forEach(s=>s.hidden=!t.checked); }
 });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(!$('#modal').hidden) closeModal(); const st=$('#showteacher'); if(!st.hidden) st.hidden=true; } });
-$('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($('#pinform')){ leavePin(); return; } if(!$('#modal').hidden) closeModal(); const st=$('#showteacher'); if(!st.hidden) st.hidden=true; } });
+$('#modal').addEventListener('click',e=>{ if(e.target.id!=='modal' || downAt<modalAt) return; /* 開窗前就按下的手勢（例如長按放開）不算點外面 */ if($('#pinform')) leavePin(); else closeModal(); });
+document.addEventListener('submit',e=>{
+  if(e.target.id!=='pinform') return; e.preventDefault();
+  if($('#pin').value===String(DATA.teacher.pin)){ teacherOK=true; closeModal(); if(location.hash!=='#teacher') location.hash='teacher'; else route(); }
+  else { $('#pinerr').textContent='密碼不對，請再試一次。'; $('#pin').value=''; $('#pin').focus(); }
+});
+/* 首頁頁尾長按約 2 秒 → 老師設定 */
+let pressT=null;
+document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#secret')) return; clearTimeout(pressT); pressT=setTimeout(()=>{ pressT=null; go('teacher'); },1800); });
+['pointerup','pointercancel'].forEach(ev=>document.addEventListener(ev,()=>{ clearTimeout(pressT); pressT=null; },true));
+document.addEventListener('contextmenu',e=>{ if(e.target.closest('#secret')) e.preventDefault(); });
 window.addEventListener('hashchange',route);
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) stopAudio(); });
 route();
 </script>
+</body>
+</html>
