@@ -1,5 +1,12 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="心情天氣站：給輔導室與班級輔導課使用的原創情緒教育小遊戲。不登入、不上傳、不留紀錄。">
+<meta name="theme-color" content="#EDF2F6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='9' fill='%23C9821C'/%3E%3Cpath d='M20 3v6M20 31v6M3 20h6M31 20h6M8 8l4 4M28 28l4 4M8 32l4-4M28 12l4-4' stroke='%23C9821C' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
 <title>心情天氣站</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap">
@@ -50,6 +57,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;gap:12px;padding-block:12px;margin-bottom:8px;border-bottom:1px solid var(--line)}
 .bar h2{flex:1;font-size:24px;min-width:0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 20px;border-radius:999px;border:2px solid var(--line);background:var(--surface);font-weight:500}
+a.btn{text-decoration:none;color:inherit}
 .btn:hover{border-color:var(--muted)}
 .btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .btn.hand{background:var(--hand);color:var(--on-hand);border-color:var(--hand);font-family:var(--f-display);font-size:19px}
@@ -62,14 +70,15 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .hero{display:grid;grid-template-columns:1fr minmax(0,1.15fr);gap:32px;align-items:center;padding-block:28px 8px}
 .hero-copy{display:grid;gap:16px;min-width:0}
 .hero-copy .lede{font-size:20px;color:var(--muted);max-width:30em}
-.friends{display:flex;gap:4px;flex-wrap:wrap}
-.friend{display:grid;justify-items:center;width:84px;font-size:14px;color:var(--muted)}
-.friend .face{width:72px;height:72px}
+.friends{display:grid;grid-template-columns:repeat(4,minmax(0,92px));gap:4px}
+.friend{display:grid;justify-items:center;font-size:14px;color:var(--muted);text-align:center}
+.friend .face{width:min(72px,100%);height:auto;aspect-ratio:1}
 .friend b{font-family:var(--f-display);font-weight:400;color:var(--ink);font-size:17px}
 
 .map{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:34px 0 34px 34px}
 .axis{position:absolute;font-size:14px;color:var(--muted);letter-spacing:.06em;font-weight:500}
-.axis.y{left:0;top:34px;bottom:34px;width:24px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;writing-mode:vertical-rl}
+.axis.y{left:0;top:34px;bottom:34px;width:24px;display:flex;flex-direction:column;justify-content:space-between;align-items:center}
+.axis.y span{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.08em;line-height:1}
 .axis.x{left:34px;right:0;bottom:0;display:flex;justify-content:space-between}
 .axis.t{left:34px;right:0;top:4px;text-align:center}
 .cell{border:none;text-align:left;border-radius:var(--r);padding:16px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;min-height:150px}
@@ -96,6 +105,9 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .home-help{display:flex;justify-content:flex-end;padding-top:14px}
 .foot{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;font-size:14px;color:var(--muted)}
 .foot a{color:var(--accent)}
+.secret{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pin{font:inherit;font-size:28px;letter-spacing:.4em;text-align:center;padding:10px;border-radius:14px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);width:100%}
+.pin-err{color:var(--storm);text-align:center;min-height:1.6em}
 
 /* ---------- face ---------- */
 .face{display:block}
@@ -161,6 +173,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .thermo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:start}
 .tube{display:grid;gap:5px;padding:10px;border-radius:999px;background:var(--surface-2);border:2px solid var(--line);width:104px}
 .seg{height:44px;border-radius:12px;border:none;font-weight:700;font-size:17px;background:var(--line);color:var(--ink)}
+.seg:first-child{border-radius:42px 42px 10px 10px;height:52px}
+.seg:last-child{border-radius:10px 10px 42px 42px;height:52px}
 .seg[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:1px}
 .bulb{width:84px;height:84px;border-radius:50%;margin:4px auto 0;display:grid;place-items:center;font-family:var(--f-display);font-size:30px;background:var(--surface);border:2px solid var(--line)}
 .tlabel{font-family:var(--f-display);font-size:30px}
@@ -284,6 +298,8 @@ th{background:var(--surface-2);font-weight:700;font-size:14px}
   .help-hero{grid-template-columns:1fr;justify-items:center;text-align:center}
 }
 </style>
+</head>
+<body>
 
 <div class="wrap" id="app">
 
@@ -300,8 +316,8 @@ th{background:var(--surface-2);font-weight:700;font-size:14px}
     </div>
     <div class="stations" id="stations"></div>
     <div class="foot">
-      <span>心情天氣站　草案 v0.1（2026-11-05）· 內容待輔導老師審定 · 不登入、不上傳、不留紀錄</span>
-      <a href="#teacher">老師設定與說明 →</a>
+      <span class="secret" id="secret">心情天氣站　草案 v0.2（2026-11-05）</span>
+      <span>內容待輔導老師審定 · 不登入、不上傳、不留紀錄</span>
     </div>
   </section>
 
@@ -324,7 +340,7 @@ th{background:var(--surface-2);font-weight:700;font-size:14px}
    ※ 全部為 Claude 草擬的原創文字，狀態：草案，待輔導老師逐項審定。
    ===================================================================== */
 const DATA = {
-  version: '草案 v0.1（2026-11-05）',
+  version: '草案 v0.2（2026-11-05）',
   /* 情緒架構：採「情緒象限」（舒服/不舒服 × 有精神/沒力氣），用天氣命名。 */
   zones: {
     sun:    { name:'晴天區', pleasant:true,  energy:'high', desc:'有精神，心裡也舒服。',
@@ -338,10 +354,10 @@ const DATA = {
   },
   /* 動物角色：每隻動物都會有各種心情（不綁定某一區），避免「某動物＝某情緒」的標籤。名字為暫定，可讓學生命名。 */
   animals: {
-    squirrel: { name:'跳跳', kind:'松鼠',     head:'#C68748', inner:'#F2D2AE', mask:'#F7E4CB', dark:'#8E5B2B', ears:'tuft' },
-    turtle:   { name:'慢慢', kind:'烏龜',     head:'#86B884', inner:'#CFE6C6', mask:'#E7F3DD', dark:'#5E8F5B', ears:'none', shape:'oval', deco:'spots' },
-    pangolin: { name:'阿甲', kind:'穿山甲',   head:'#B9946D', inner:'#E8CFB3', mask:'#F2E3D0', dark:'#86664A', ears:'small', deco:'scales' },
-    bear:     { name:'圓圓', kind:'臺灣黑熊', head:'#4E4A55', inner:'#8E8697', mask:'#EADDC9', dark:'#2E2B33', ears:'round', deco:'moon' }
+    squirrel: { name:'跳跳', kind:'松鼠',     fur:'#CF8442', light:'#F8E5C8', inner:'#F2B98C', dark:'#8A4F22' },
+    turtle:   { name:'慢慢', kind:'烏龜',     fur:'#8FC889', light:'#E6F3D2', dark:'#4F8A4C', shell:'#B98B50', shellL:'#D8AE72', shellD:'#7A5428' },
+    pangolin: { name:'阿甲', kind:'穿山甲',   fur:'#DDBBA0', light:'#EFD6C2', dark:'#6E4E30', scale:'#A87D52', scaleL:'#D2AC7E', nose:'#B8706A' },
+    bear:     { name:'圓圓', kind:'臺灣黑熊', fur:'#34303B', light:'#D8B98E', inner:'#5E5868', dark:'#1C1A20', crest:'#F5EFE0', edge:'#6C6578', line:'#F3EBDD', ring:'#F3EBDD' }
   },
   /* 情緒詞：z=所屬區（可兩區）；x=表情參數；src=來源/審稿狀態 */
   words: [
@@ -393,6 +409,9 @@ const DATA = {
     { t:'轉學來的新同學第一次跟你說話。', z:['storm','sun'], w:['害羞','好奇'], tip:'笑一笑，問他一個問題：「你喜歡玩什麼？」' },
     { t:'家裡的小狗生病了，要住院幾天。', z:['rain','storm'], w:['擔心','難過'], tip:'把擔心告訴家人，一起想想能為小狗做什麼。' }
   ],
+  /* 老師設定頁的進入方式：在首頁長按頁尾「心情天氣站 草案…」約 2 秒，或網址加 #teacher，再輸入密碼。
+     ※ 這只是防止學生誤觸，不是真正的資安保護；請學校自行改成別的數字。 */
+  teacher: { pin:'2580' },
   /* 需要幫助時的流程（草案，必做；觸發條件與文字請輔導老師修正） */
   help: {
     triggerLevel: 2,              // 心情溫度計選到這個數字以下就提示
@@ -452,66 +471,107 @@ const WX = {
 };
 const ztag = z=>`<span class="zt ${z}">${WX[z]}${DATA.zones[z].name}</span>`;
 
-/* ---------- programmatic faces ---------- */
-function ears(a){
-  if(a.ears==='tuft') return `<path d="M24 48 L33 8 L52 36Z" fill="${a.head}"/><path d="M96 48 L87 8 L68 36Z" fill="${a.head}"/><path d="M31 39 L34 19 L45 34Z" fill="${a.inner}"/><path d="M89 39 L86 19 L75 34Z" fill="${a.inner}"/>`;
-  if(a.ears==='round') return `<circle cx="28" cy="30" r="14" fill="${a.head}"/><circle cx="92" cy="30" r="14" fill="${a.head}"/><circle cx="28" cy="30" r="7" fill="${a.inner}"/><circle cx="92" cy="30" r="7" fill="${a.inner}"/>`;
-  if(a.ears==='small') return `<ellipse cx="20" cy="60" rx="7" ry="9" fill="${a.inner}" stroke="${a.head}" stroke-width="3"/><ellipse cx="100" cy="60" rx="7" ry="9" fill="${a.inner}" stroke="${a.head}" stroke-width="3"/>`;
-  return '';
-}
-function deco(a){
-  if(a.deco==='scales') return `<g fill="none" stroke="${a.dark}" stroke-width="3" stroke-linecap="round"><path d="M28 46 Q36 34 44 44 Q52 32 60 42 Q68 32 76 44 Q84 34 92 46"/><path d="M38 33 Q46 23 54 31 Q60 21 66 31 Q74 23 82 33"/></g>`;
-  if(a.deco==='spots') return `<g fill="${a.dark}" opacity=".5"><circle cx="45" cy="37" r="5"/><circle cx="61" cy="30" r="6"/><circle cx="77" cy="38" r="4.5"/></g>`;
-  if(a.deco==='moon') return `<path d="M44 104 Q60 114 76 104" stroke="#F1EAD8" stroke-width="4" fill="none" stroke-linecap="round"/>`;
-  return '';
-}
-function eye(cx,cy,t){
-  const st = `stroke="${INK}" stroke-width="3" stroke-linecap="round" fill="none"`;
+/* ---------- programmatic faces ----------
+   四隻動物各有自己的「一眼認得出來」的特徵：
+   松鼠＝大蓬尾巴＋耳尖簇毛＋鼓鼓的臉頰；烏龜＝背後的龜殼；
+   穿山甲＝頭頂和身上的鱗片＋長鼻吻；臺灣黑熊＝胸前白色 V 字＋淺色口鼻。
+   表情（眉、眼、嘴）座標四隻共用，所以每隻都能做出全部表情。 */
+const SPECIES = {
+  squirrel(a){
+    return {
+      back:`<path d="M40 104 C14 106 0 86 4 62 C7 44 0 34 6 22 C13 7 34 3 42 15 C48 25 40 35 31 31 C27 46 30 70 40 104Z" fill="${a.fur}" stroke="${a.dark}" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M30 96 C14 92 10 76 13 60 C15 48 11 38 15 28 C19 19 29 16 34 21" fill="none" stroke="${a.light}" stroke-width="5" stroke-linecap="round" opacity=".75"/>`,
+      ears:`<path d="M33 46 L35 14 L55 33Z" fill="${a.fur}" stroke="${a.dark}" stroke-width="2.5" stroke-linejoin="round"/><path d="M87 46 L85 14 L65 33Z" fill="${a.fur}" stroke="${a.dark}" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M38 37 L38.5 22 L48 32Z" fill="${a.inner}"/><path d="M82 37 L81.5 22 L72 32Z" fill="${a.inner}"/>
+        <path d="M35 15 l-3 -8 M35 15 l2 -9 M35 15 l5 -6" stroke="${a.dark}" stroke-width="2.6" stroke-linecap="round"/><path d="M85 15 l3 -8 M85 15 l-2 -9 M85 15 l-5 -6" stroke="${a.dark}" stroke-width="2.6" stroke-linecap="round"/>`,
+      head:`<circle cx="60" cy="65" r="39" fill="${a.fur}" stroke="${a.dark}" stroke-width="2.5"/>`,
+      front:`<g fill="${a.light}"><circle cx="41" cy="85" r="13"/><circle cx="79" cy="85" r="13"/><ellipse cx="60" cy="89" rx="18" ry="13"/></g>
+        <path d="M55 78.5 Q60 76.5 65 78.5 Q63 83 60 83.5 Q57 83 55 78.5Z" fill="${a.dark}"/>`
+    };
+  },
+  turtle(a){
+    return {
+      back:`<ellipse cx="60" cy="108" rx="57" ry="27" fill="${a.shell}" stroke="${a.shellD}" stroke-width="2.5"/>
+        <path d="M5 106 Q60 92 115 106" fill="none" stroke="${a.shellL}" stroke-width="4" opacity=".8"/>
+        <g fill="none" stroke="${a.shellD}" stroke-width="2.4" stroke-linejoin="round"><path d="M10 98 L24 104 L22 120"/><path d="M110 98 L96 104 L98 120"/><path d="M24 104 L40 101"/><path d="M96 104 L80 101"/></g>`,
+      ears:'',
+      head:`<ellipse cx="60" cy="63" rx="37" ry="39" fill="${a.fur}" stroke="${a.dark}" stroke-width="2.5"/>
+        <g fill="${a.dark}" opacity=".45"><circle cx="46" cy="36" r="4.5"/><circle cx="60" cy="31" r="5"/><circle cx="74" cy="36" r="4.5"/><circle cx="53" cy="44" r="3"/><circle cx="67" cy="44" r="3"/></g>`,
+      front:`<ellipse cx="60" cy="88" rx="27" ry="13.5" fill="${a.light}"/>
+        <circle cx="56.5" cy="79" r="1.7" fill="${a.dark}"/><circle cx="63.5" cy="79" r="1.7" fill="${a.dark}"/>`
+    };
+  },
+  pangolin(a){
+    /* 松果狀的大鱗片從頭頂一層層往下疊，兩頰外緣也有鱗片；中間露出倒水滴形的臉和鼻吻 */
+    const sc=(x,y)=>`<path d="M${x-8} ${y-5} Q${x-8} ${y+3} ${x} ${y+9} Q${x+8} ${y+3} ${x+8} ${y-5} Q${x} ${y-10} ${x-8} ${y-5}Z" fill="${a.scale}" stroke="${a.dark}" stroke-width="1.9" stroke-linejoin="round"/><path d="M${x-4} ${y+1} Q${x} ${y+5.5} ${x+4} ${y+1}" fill="none" stroke="${a.scaleL}" stroke-width="1.6" stroke-linecap="round"/>`;
+    const rows=[[22,[53,67]],[30,[39,53,67,81]],[38,[28,46,60,74,92]],[47,[21,35,85,99]],[57,[18,102]],[68,[19,101]],[79,[23,97]],[89,[30,90]]];
+    return {
+      back:'',
+      ears:'',
+      head:`<ellipse cx="60" cy="62" rx="38" ry="38" fill="${a.scale}"/>`+rows.map(([y,xs])=>xs.map(x=>sc(x,y)).join('')).join(''),
+      front:`<path d="M32 64 Q32 50 60 50 Q88 50 88 64 Q88 84 71 98 Q60 106 49 98 Q32 84 32 64Z" fill="${a.fur}" stroke="${a.dark}" stroke-width="2"/>
+        <ellipse cx="60" cy="90" rx="12" ry="10.5" fill="${a.light}"/>
+        <ellipse cx="60" cy="79.5" rx="5" ry="3.4" fill="${a.nose}"/>`
+    };
+  },
+  bear(a){
+    return {
+      back:`<path d="M6 120 Q10 90 60 90 Q110 90 114 120Z" fill="${a.fur}" stroke="${a.edge}" stroke-width="2.5"/>
+        <path d="M30 101 Q60 124 90 101 Q87 98 82 99.5 Q60 115 38 99.5 Q33 98 30 101Z" fill="${a.crest}"/>`,
+      ears:`<circle cx="25" cy="29" r="14" fill="${a.fur}" stroke="${a.edge}" stroke-width="2.5"/><circle cx="95" cy="29" r="14" fill="${a.fur}" stroke="${a.edge}" stroke-width="2.5"/><circle cx="25" cy="29" r="7" fill="${a.inner}"/><circle cx="95" cy="29" r="7" fill="${a.inner}"/>`,
+      head:`<circle cx="60" cy="59" r="40" fill="${a.fur}" stroke="${a.edge}" stroke-width="2.5"/>`,
+      front:`<ellipse cx="60" cy="86" rx="20" ry="15" fill="${a.light}"/>
+        <ellipse cx="60" cy="78.5" rx="7" ry="4.8" fill="${a.dark}"/><ellipse cx="57.5" cy="77" rx="2.2" ry="1.3" fill="#fff" opacity=".55"/>`
+    };
+  }
+};
+function eye(cx,cy,t,c){
+  const st = `stroke="${c.line}" stroke-width="3" stroke-linecap="round" fill="none"`;
+  const ring = c.ring ? ` stroke="${c.ring}" stroke-width="1.8"` : '';
   switch(t){
     case 'h': return `<path d="M${cx-6} ${cy+2} Q${cx} ${cy-6} ${cx+6} ${cy+2}" ${st}/>`;
     case 'c': return `<path d="M${cx-6} ${cy-1} Q${cx} ${cy+5} ${cx+6} ${cy-1}" ${st}/>`;
     case 'w': return `<circle cx="${cx}" cy="${cy}" r="6.5" fill="#fff" stroke="${INK}" stroke-width="2"/><circle cx="${cx}" cy="${cy+.5}" r="3.6" fill="${INK}"/><circle cx="${cx+1.4}" cy="${cy-1}" r="1.3" fill="#fff"/>`;
-    case 'half': return `<path d="M${cx-5} ${cy} A5 5 0 0 0 ${cx+5} ${cy} Z" fill="${INK}"/><path d="M${cx-6.5} ${cy} L${cx+6.5} ${cy}" ${st}/>`;
+    case 'half': return `<path d="M${cx-5} ${cy} A5 5 0 0 0 ${cx+5} ${cy} Z" fill="${INK}"${ring}/><path d="M${cx-6.5} ${cy} L${cx+6.5} ${cy}" ${st}/>`;
     case 's': return `<ellipse cx="${cx}" cy="${cy}" rx="6.5" ry="4.5" fill="#fff" stroke="${INK}" stroke-width="2"/><circle cx="${cx+3}" cy="${cy+.5}" r="3" fill="${INK}"/><path d="M${cx-7} ${cy-3} L${cx+7} ${cy-4.5}" ${st}/>`;
-    default: return `<circle cx="${cx}" cy="${cy}" r="4.6" fill="${INK}"/><circle cx="${cx+1.5}" cy="${cy-1.6}" r="1.5" fill="#fff"/>`;
+    default: return `<circle cx="${cx}" cy="${cy}" r="4.8" fill="${INK}"${ring}/><circle cx="${cx+1.5}" cy="${cy-1.6}" r="1.6" fill="#fff"/>`;
   }
 }
 function mouth(m,mo,mt){
-  const cy=87, w=11, st=`stroke="${INK}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
-  if(mt==='o') return `<ellipse cx="60" cy="${cy+1}" rx="${f1(4+mo*2)}" ry="${f1(3+mo*5)}" fill="${INK}"/>`;
-  if(mt==='zig') return `<path d="M49 ${cy} l5.5 -3 l5.5 3 l5.5 -3 l5.5 3" ${st}/>`;
+  const cy=88, w=10, st=`stroke="${INK}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
+  if(mt==='o') return `<ellipse cx="60" cy="${cy+1}" rx="${f1(3.5+mo*2)}" ry="${f1(2.5+mo*4.5)}" fill="${INK}"/>`;
+  if(mt==='zig') return `<path d="M50 ${cy} l5 -2.6 l5 2.6 l5 -2.6 l5 2.6" ${st}/>`;
   if(mo>.05){
-    const top = cy + (m>0 ? m*2 : m*8), bot = cy + mo*16 + (m>0 ? m*8 : 0);
+    const top = cy + (m>0 ? m*2 : m*7), bot = cy + mo*13 + (m>0 ? m*6 : 0);
     return `<path d="M${60-w} ${cy} Q60 ${f1(top)} ${60+w} ${cy} Q60 ${f1(bot)} ${60-w} ${cy} Z" fill="${INK}"/>`;
   }
-  return `<path d="M${60-w} ${cy} Q60 ${f1(cy+m*11)} ${60+w} ${cy}" ${st}/>`;
+  return `<path d="M${60-w} ${cy} Q60 ${f1(cy+m*10)} ${60+w} ${cy}" ${st}/>`;
 }
-const star=(x,y,r)=>`<path d="M${x} ${y-r} L${f1(x+r*.28)} ${f1(y-r*.28)} L${x+r} ${y} L${f1(x+r*.28)} ${f1(y+r*.28)} L${x} ${y+r} L${f1(x-r*.28)} ${f1(y+r*.28)} L${x-r} ${y} L${f1(x-r*.28)} ${f1(y-r*.28)}Z" fill="#F2BE3C"/>`;
+const star=(x,y,r)=>`<path d="M${x} ${y-r} L${f1(x+r*.28)} ${f1(y-r*.28)} L${x+r} ${y} L${f1(x+r*.28)} ${f1(y+r*.28)} L${x} ${y+r} L${f1(x-r*.28)} ${f1(y+r*.28)} L${x-r} ${y} L${f1(x-r*.28)} ${f1(y-r*.28)}Z" fill="#F2BE3C" stroke="#C98F12" stroke-width=".8"/>`;
 const EXTRA = {
-  blush:`<ellipse cx="37" cy="81" rx="6" ry="3.5" fill="#EE9393" opacity=".7"/><ellipse cx="83" cy="81" rx="6" ry="3.5" fill="#EE9393" opacity=".7"/>`,
-  tear:`<path d="M75 74 Q70.5 82 75 85.5 Q79.5 82 75 74Z" fill="#62B3E8"/>`,
-  sweat:`<path d="M96 36 Q90 48 96 52 Q102 48 96 36Z" fill="#9BD3F3" stroke="#5DA6D6" stroke-width="1.2"/>`,
-  sparkle: star(14,30,7)+star(106,22,5.5),
-  zz:`<text x="92" y="32" font-size="16" font-weight="700" fill="#5B6B80" font-family="sans-serif">z</text><text x="103" y="20" font-size="12" font-weight="700" fill="#5B6B80" font-family="sans-serif">z</text>`,
-  vein:`<path d="M90 22 Q94 27 99 22 M90 36 Q94 31 99 36 M88 25 Q93 29 88 33 M101 25 Q96 29 101 33" stroke="#D24E44" stroke-width="2.6" fill="none" stroke-linecap="round"/>`,
-  heart:`<path d="M101 31 C101 26 94 24 94 30 C94 34 101 37 101 40 C101 37 108 34 108 30 C108 24 101 26 101 31Z" fill="#E56A7C"/>`,
-  scribble:`<path d="M91 24 c4 -5 9 3 4 6 c-5 3 -7 -6 0 -6 c7 0 6 9 1 8" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
-  breeze:`<path d="M2 54 q8 -4 15 0 M0 64 q9 -4 17 0" stroke="#6DB8A2" stroke-width="2.6" fill="none" stroke-linecap="round"/>`
+  blush:c=>`<ellipse cx="37" cy="80" rx="6" ry="3.5" fill="#EE8A8A" opacity="${c.ring?'.9':'.7'}"/><ellipse cx="83" cy="80" rx="6" ry="3.5" fill="#EE8A8A" opacity="${c.ring?'.9':'.7'}"/>`,
+  tear:()=>`<path d="M75 74 Q70.5 82 75 85.5 Q79.5 82 75 74Z" fill="#62B3E8" stroke="#3E8FC4" stroke-width="1"/>`,
+  sweat:()=>`<path d="M98 40 Q92 52 98 56 Q104 52 98 40Z" fill="#9BD3F3" stroke="#5DA6D6" stroke-width="1.2"/>`,
+  sparkle:()=> star(108,46,6.5)+star(112,24,4.5),
+  zz:()=>`<text x="96" y="30" font-size="16" font-weight="700" fill="#5B6B80" font-family="sans-serif">z</text><text x="106" y="18" font-size="12" font-weight="700" fill="#5B6B80" font-family="sans-serif">z</text>`,
+  vein:()=>`<g transform="translate(4 18)"><path d="M90 22 Q94 27 99 22 M90 36 Q94 31 99 36 M88 25 Q93 29 88 33 M101 25 Q96 29 101 33" stroke="#D24E44" stroke-width="2.8" fill="none" stroke-linecap="round"/></g>`,
+  heart:()=>`<path d="M104 45 C104 40 97 38 97 44 C97 48 104 51 104 54 C104 51 111 48 111 44 C111 38 104 40 104 45Z" fill="#E56A7C"/>`,
+  scribble:c=>`<path d="M95 40 c4 -5 9 3 4 6 c-5 3 -7 -6 0 -6 c7 0 6 9 1 8" stroke="${c.ring?'#5B6B80':INK}" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+  breeze:()=>`<path d="M98 58 q8 -4 15 0 M100 68 q9 -4 17 0" stroke="#4FA88E" stroke-width="2.6" fill="none" stroke-linecap="round"/>`
 };
 function face(ak, x={}, label=''){
   const a = DATA.animals[ak] || DATA.animals.squirrel;
+  const sp = SPECIES[a.species||ak](a);
+  const c = { line:a.line||INK, ring:a.ring||'' };
   const b=x.b||0, r=x.r||0, m=x.m||0, mo=x.mo||0;
-  const by = 57 - r*7;
-  const brow=(ox,ix)=>`<path d="M${ox} ${f1(by-b*2)} Q${(ox+ix)/2} ${f1(by-2.5-b*1.5)} ${ix} ${f1(by+b*5)}" stroke="${INK}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
+  const by = 58 - r*6;
+  const brow=(ox,ix)=>`<path d="M${ox} ${f1(by-b*2)} Q${(ox+ix)/2} ${f1(by-2.5-b*1.5)} ${ix} ${f1(by+b*5)}" stroke="${c.line}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
   let s = `<svg class="face" viewBox="0 0 120 120" ${label?`role="img" aria-label="${label}"`:'aria-hidden="true"'}>`;
-  s += ears(a);
-  s += a.shape==='oval' ? `<ellipse cx="60" cy="64" rx="40" ry="44" fill="${a.head}"/>` : `<circle cx="60" cy="64" r="43" fill="${a.head}"/>`;
-  s += deco(a);
-  s += `<ellipse cx="60" cy="75" rx="33" ry="27" fill="${a.mask}"/>`;
+  s += sp.back + sp.ears + sp.head + sp.front;
   s += brow(39,53) + brow(81,67);
-  s += eye(47,69,x.e||'o') + eye(73,69,x.e||'o');
+  s += eye(47,69,x.e||'o',c) + eye(73,69,x.e||'o',c);
   s += mouth(m,mo,x.mt);
-  (x.x||[]).forEach(k=>{ s += EXTRA[k]||''; });
+  (x.x||[]).forEach(k=>{ s += EXTRA[k] ? EXTRA[k](c) : ''; });
   return s + '</svg>';
 }
 const wordFace = (w,ak)=>face(ak||w.a, w.x, `${DATA.animals[ak||w.a].name}覺得${w.w}`);
@@ -527,10 +587,12 @@ const ICON = {
   calm:`<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="16" r="5" fill="currentColor" opacity=".35"/></svg>`,
   print:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 11V4h14v7M9 22H5V11h22v11h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><rect x="9" y="18" width="14" height="10" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>`
 };
-function bar(title){
-  return `<header class="bar noprint"><a class="btn back" href="#home" aria-label="回天氣站">${ICON.back}<span class="small">天氣站</span></a><h2>${title}</h2><button class="btn hand" data-act="help">${ICON.heart}<span class="long">我需要幫忙</span></button></header>`;
+function bar(title, help=true){
+  return `<header class="bar noprint"><a class="btn back" href="#home" aria-label="回天氣站">${ICON.back}<span class="small">天氣站</span></a><h2>${title}</h2>${help?`<button class="btn hand" data-act="help">${ICON.heart}<span class="long">我需要幫忙</span></button>`:''}</header>`;
 }
-function modal(html){ $('#modal-box').innerHTML = html; $('#modal').hidden = false; const f=$('#modal-box button'); f && f.focus(); }
+let modalAt=0, downAt=0;
+document.addEventListener('pointerdown',()=>{ downAt=performance.now(); },true);
+function modal(html){ $('#modal-box').innerHTML = html; $('#modal').hidden = false; modalAt=performance.now(); const f=$('#modal-box button'); f && f.focus(); }
 function closeModal(){ $('#modal').hidden = true; $('#modal-box').innerHTML=''; }
 function showTeacher(){
   const el=$('#showteacher');
@@ -550,7 +612,7 @@ function initHome(){
   const sample = { storm:['生氣','緊張'], sun:['開心','興奮'], rain:['難過','疲倦'], breeze:['平靜','安心'] };
   const fa = { storm:'pangolin', sun:'squirrel', rain:'turtle', breeze:'bear' };
   $('#map').innerHTML = `<span class="axis t">點一區，看看裡面的心情</span>
-    <span class="axis y"><span>有精神 ↑</span><span>↓ 沒力氣</span></span>
+    <span class="axis y"><span>↑有精神</span><span>沒力氣↓</span></span>
     <span class="axis x"><span>← 不舒服</span><span>舒服 →</span></span>` +
     ['storm','sun','rain','breeze'].map(z=>{ const Z=DATA.zones[z]; const w=WORD[sample[z][0]];
       return `<button class="cell z-${z}" data-zone="${z}">${face(fa[z],w.x)}<span class="zn">${WX[z]}${Z.name}</span><span class="zd">${Z.desc}</span><span class="zw">${sample[z].join('・')}…</span></button>`; }).join('');
@@ -782,7 +844,7 @@ function playSound(kind){
 /* =========================== 需要幫助時 =========================== */
 function initHelp(){
   const H=DATA.help, room = SET.mode==='room';
-  $('#v-help').innerHTML = bar('需要幫忙的時候') + `<div class="stack">
+  $('#v-help').innerHTML = bar('需要幫忙的時候',false) + `<div class="stack">
     <div class="help-hero">${face('bear',{e:'c',m:.35})}<p>${H.thanks}</p></div>
     ${room ? `<div class="panel stack"><p class="lead">${H.roomLine}</p><div class="row"><button class="btn hand big" data-act="showteacher">給老師看</button><a class="btn big" href="#calm">先去冷靜角</a></div></div>` : ''}
     <div class="stack"><h3>${room?'離開輔導室以後，也可以找這些大人':H.classLine}</h3>
@@ -821,7 +883,7 @@ function initPrint(){
   pages.push(['wallet',`<h4>求助小卡<small>剪下後放在鉛筆盒或書包裡</small></h4><div class="wallet">${Array.from({length:8},()=>`<div class="pc">${face('bear',{e:'c',m:.35})}<b>心情很不好的時候</b><span>我可以找：</span><span class="fill"></span><span class="fill"></span><span style="font-size:9pt">我可以說：「我想跟你說一件事。」</span></div>`).join('')}</div>`]);
   $('#v-print').innerHTML = bar('列印版') + `<div class="stack">
     <div class="panel stack noprint"><p>勾選要印的內容，然後用瀏覽器的列印功能（電腦按 <b>Ctrl＋P</b>，Mac 按 <b>⌘＋P</b>；iPad 用 Safari 的「分享 → 列印」）。紙張選 A4、邊界「無」、縮放 100%，並勾選「背景圖形」才會印出底色。</p>
-      <p class="small muted">如果在 Claude 裡面按列印沒有反應，請先把這個頁面用瀏覽器直接打開再印。之後放上學校網站就沒有這個問題。</p>
+      <p class="small muted">建議用電腦的 Chrome 或 Edge 列印，版面最準確。印之前可以先按「預覽列印」確認每張都是一整頁。</p>
       <div class="ptools">${opts.map(([k,n])=>`<label><input type="checkbox" id="pp-${k}" data-pp="${k}" ${PSEL[k]?'checked':''}>${n}</label>`).join('')}</div></div>
     <div class="sheets">${pages.map(([k,h])=>`<div class="sheet" data-pk="${k}" ${PSEL[k]?'':'hidden'}>${h}</div>`).join('')}</div></div>`;
 }
@@ -842,6 +904,7 @@ function initTeacher(){
       <li><b>沒有分數、沒有排行榜、不記錯題。</b>情緒偵探和情境配對只要選到同一區的心情就算對。</li>
       <li><b>情緒分類用「舒服 × 有精神」四區。</b>用天氣命名（晴天、微風、雷雨、雨天），一個詞可以同時在兩區。</li>
       <li><b>四隻動物每一隻都會有各種心情</b>，不綁定某一種情緒，避免「某動物＝某情緒」的聯想。名字暫定，可以讓學生命名。</li>
+      <li><b>老師設定頁的進入方式：</b>首頁長按頁尾「心情天氣站 草案…」約 2 秒，或網址加 <code>#teacher</code>，再輸入密碼。密碼在程式最上方 <code>DATA.teacher.pin</code>，請學校自己改。這只是防止學生誤觸，不是資安保護。</li>
       <li>可以直接用網址打開某個遊戲，例如網址後面加 <code>#calm</code> 就是冷靜角（給之後 3D 校園的雅雅老師入口用）。</li>
     </ul></div>
 
@@ -865,10 +928,22 @@ function initTeacher(){
 
 /* =========================== router & events =========================== */
 const VIEWS={home:initHome,cards:initCards,detective:initDetective,match:initMatch,thermo:initThermo,calm:initCalm,help:initHelp,print:initPrint,teacher:initTeacher};
+let teacherOK=false;
+function askPin(){
+  modal(`<form class="stack" id="pinform"><h3 id="modal-t" style="text-align:center">老師專用</h3>
+    <p class="muted" style="text-align:center">請輸入密碼</p>
+    <input class="pin" id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" aria-label="密碼">
+    <p class="pin-err" id="pinerr" aria-live="polite"></p>
+    <div class="btns"><button class="btn primary big" type="submit">進入</button><button class="btn ghost" type="button" data-act="pin-cancel">取消，回天氣站</button></div></form>`);
+  const i=$('#pin'); i && i.focus();
+}
+function leavePin(){ closeModal(); history.replaceState(null,'','#home'); route(); }
 function route(){
   const k = (location.hash||'').slice(1);
   const key = VIEWS[k] ? k : 'home';
   clearCalm(); closeModal();
+  if(key!=='teacher') teacherOK=false;
+  if(key==='teacher' && !teacherOK){ $$('.view').forEach(v=>{ v.hidden = v.id!=='v-home'; }); initHome(); askPin(); return; }
   $$('.view').forEach(v=>{ v.hidden = v.id!=='v-'+key; });
   VIEWS[key]();
   try{ window.scrollTo(0,0); }catch(e){}
@@ -880,6 +955,7 @@ document.addEventListener('click',e=>{
   const d=t.dataset;
   if(d.act==='help'){ closeModal(); go('help'); return; }
   if(d.act==='close'){ closeModal(); return; }
+  if(d.act==='pin-cancel'){ leavePin(); return; }
   if(d.go){ closeModal(); go(d.go); return; }
   if(d.act==='showteacher'){ showTeacher(); return; }
   if(t.id==='showteacher'){ t.hidden=true; return; }
@@ -910,9 +986,21 @@ document.addEventListener('change',e=>{
   else if(t.id==='set-en'){ SET.en=t.checked; saveSet(); }
   else if(t.dataset.pp){ PSEL[t.dataset.pp]=t.checked; $$(`.sheet[data-pk="${t.dataset.pp}"]`).forEach(s=>s.hidden=!t.checked); }
 });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(!$('#modal').hidden) closeModal(); const st=$('#showteacher'); if(!st.hidden) st.hidden=true; } });
-$('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($('#pinform')){ leavePin(); return; } if(!$('#modal').hidden) closeModal(); const st=$('#showteacher'); if(!st.hidden) st.hidden=true; } });
+$('#modal').addEventListener('click',e=>{ if(e.target.id!=='modal' || downAt<modalAt) return; /* 開窗前就按下的手勢（例如長按放開）不算點外面 */ if($('#pinform')) leavePin(); else closeModal(); });
+document.addEventListener('submit',e=>{
+  if(e.target.id!=='pinform') return; e.preventDefault();
+  if($('#pin').value===String(DATA.teacher.pin)){ teacherOK=true; closeModal(); if(location.hash!=='#teacher') location.hash='teacher'; else route(); }
+  else { $('#pinerr').textContent='密碼不對，請再試一次。'; $('#pin').value=''; $('#pin').focus(); }
+});
+/* 首頁頁尾長按約 2 秒 → 老師設定 */
+let pressT=null;
+document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#secret')) return; clearTimeout(pressT); pressT=setTimeout(()=>{ pressT=null; go('teacher'); },1800); });
+['pointerup','pointercancel'].forEach(ev=>document.addEventListener(ev,()=>{ clearTimeout(pressT); pressT=null; },true));
+document.addEventListener('contextmenu',e=>{ if(e.target.closest('#secret')) e.preventDefault(); });
 window.addEventListener('hashchange',route);
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) stopAudio(); });
 route();
 </script>
+</body>
+</html>
